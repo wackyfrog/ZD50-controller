@@ -10,10 +10,10 @@
 namespace Button {
 
     typedef enum {
-        UNPRESSED,
-        SHORT_PRESS,
-        MIDDLE_PRESS,
-        LONG_PRESS,
+        UNPRESSED = 0,
+        SHORT_PRESS = 1,
+        MIDDLE_PRESS = 2,
+        LONG_PRESS = 3,
         __LENGTH__
     } State;
 
@@ -25,9 +25,9 @@ namespace Button {
 
     const StateTransition statesTransition[__LENGTH__] = {
             {100,  SHORT_PRESS}, // UNPRESSED -> PRESS
-            {1000, MIDDLE_PRESS}, // PRESS -> MIDDLE_PRESS
-            {1000, LONG_PRESS}, // MIDDLE_PRESS -> LONG_PRESS
-            {1000, LONG_PRESS} // LONG_PRESS
+            {800, MIDDLE_PRESS}, // PRESS -> MIDDLE_PRESS
+            {800, LONG_PRESS}, // MIDDLE_PRESS -> LONG_PRESS
+            {800, LONG_PRESS} // LONG_PRESS
     };
 
     void init();

@@ -12,56 +12,42 @@ namespace Button {
 
     State state = UNPRESSED;
 
-    static unsigned long pressStartedMillis = 0;
+    static unsigned long pressStartTime = 0;
+    static unsigned long nextStateTime = 0;
 
     ISR (PCINT3_vect) {
         isPressed = BUTTON_PRESS_STATE();
     }
 
     unsigned long getPressingTime() {
-        return state == UNPRESSED ? 0 : millis() - pressStartedMillis;
+        return state == UNPRESSED ? 0 : millis() - pressStartTime;
     }
-
 
     COROUTINE(buttonDebounce) {
         COROUTINE_LOOP() {
-            COROUTINE_AWAIT(isPressed);
-            COROUTINE_DELAY(statesTransition[state].time);
-            if (isPressed) {
-                state = SHORT_PRESS;
-                pressStartedMillis = millis();
-            }
-            COROUTINE_AWAIT(!isPressed);
-        }
-    }
+            static unsigned long now;
 
-    COROUTINE(buttonLogic) {
-        COROUTINE_LOOP() {
-//            using namespace StateController;
-            static unsigned long pressingTime = 0;
-            static unsigned long nextUpdateTime = 0;
-
-            COROUTINE_AWAIT(state != UNPRESSED);
+            now = millis();
 
             if (isPressed) {
-                pressingTime = getPressingTime();
-                if (pressingTime > statesTransition[state].time) {
-                    if (statesTransition[state].nextState != state) {
+                if (now > nextStateTime) {
+                    if (pressStartTime == 0) {
+                        pressStartTime = now;
+                    } else {
                         state = statesTransition[state].nextState;
+                        ZD50::command(Controller::Command::BUTTON_PRESSING, state);
                     }
-                }
-
-                if (/*pressingTime > statesTransition[state].time &&*/ pressingTime > nextUpdateTime) {
-                    ZD50::command(Controller::Command::BUTTON_PRESSING, state);
-                    nextUpdateTime = pressingTime + statesTransition[state].time;
+                    nextStateTime = now + statesTransition[state].time;
                 }
 
             } else {
-                ZD50::command(Controller::Command::BUTTON_PRESS, state);
-                pressStartedMillis = 0;
-                nextUpdateTime = 0;
-                state = UNPRESSED;
+                if (state != UNPRESSED) {
+                    ZD50::command(Controller::Command::BUTTON_PRESS, state);
+                    pressStartTime = 0;
+                    state = UNPRESSED;
+                }
             }
+            COROUTINE_DELAY(50);
         }
     }
 

@@ -13,13 +13,13 @@ class Controller {
 public:
 
     typedef enum {
-        TIMEOUT,
-        VOLUME,
-        VOLUME_INCREMENT,
-        VOLUME_DECREMENT,
-        BUTTON_PRESS,
-        BUTTON_PRESSING,
-        ROTATE
+        TIMEOUT = 0,
+        VOLUME = 1,
+        VOLUME_INCREMENT = 2,
+        VOLUME_DECREMENT = 3,
+        BUTTON_PRESS = 4,
+        BUTTON_PRESSING = 5,
+        ROTATE = 6
     } Command;
 
     typedef int CommandParam;

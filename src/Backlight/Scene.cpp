@@ -20,6 +20,10 @@ void Backlight::Scene::startInstantScene(Scene *newScene) {
     }
 }
 
+void Backlight::Scene::stopInstantScene() {
+    instantScene = nullptr;
+}
+
 void Scene::startScene(Scene *newScene) {
     if (instantScene == nullptr) {
         if (scene != nullptr) {
