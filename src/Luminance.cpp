@@ -5,6 +5,7 @@
 #include <Luminance.h>
 
 #include "Luminance.h"
+#include <Arduino.h>
 
 /**
  *
@@ -12,8 +13,8 @@
 namespace Luminance {
     static int luminance = 0;
 
-    int update() {
-//        luminance = analogRead(LUMINANCE_PIN_SENSOR);
+    int read() {
+        luminance = analogRead(LUMINANCE_PIN_SENSOR);
         return luminance;
     }
 
@@ -22,6 +23,6 @@ namespace Luminance {
     }
 
     void init() {
-
+        pinMode(LUMINANCE_PIN_SENSOR, INPUT_PULLUP);
     }
 }

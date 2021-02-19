@@ -16,12 +16,11 @@ static const int minBrightness = 0;
 static const int maxBrightness = 4;
 
 void PowerOn::begin() {
-    ZD50::Serial.println(F("[PowerOnScene::begin]"));
     state = 0;
 }
 
 void PowerOn::frame() {
-    fill((Backlight::cRGB) {1, 1, 1});
+    fill((Backlight::cRGB) {55, 50, 50});
     Backlight::update();
     done();
     return;

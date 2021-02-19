@@ -9,15 +9,20 @@
 using namespace Backlight;
 using namespace BacklightScene;
 
+
 static uint8_t state = 0;
 static int bri;
 static int briStep;
 const int minBrightness = 0;
-const int maxBrightness = 4;
+const int maxBrightness = 45;
+
+static uint16_t hue;
+static uint8_t val;
+static cRGB color;
 
 void Standby::begin() {
-    ZD50::Serial.println(F("[StandbyScene::begin]"));
     state = 0;
+    hue = HSV_HUE_MIN;
 }
 
 void Standby::frame() {
@@ -37,7 +42,8 @@ void Standby::frame() {
             break;
 
         case 2:
-            fill((Backlight::cRGB) {(uint8_t) bri, (uint8_t) bri, (uint8_t) bri});
+            fast_hsv2rgb_32bit(0, 10, bri, &color.r, &color.g, &color.b);
+            fill(color);
             Backlight::update();
 
             bri += briStep;
@@ -45,14 +51,22 @@ void Standby::frame() {
                 bri = maxBrightness;
                 briStep = -1;
                 nextFrameDelay(1000);
+//                hue += 20;
+//                if (hue > HSV_HUE_MAX) {
+//                    hue = HSV_HUE_MIN;
+//                }
 
             } else if (bri < minBrightness) {
                 bri = minBrightness;
                 briStep = 1;
-                nextFrameDelay(2000);
+                nextFrameDelay(1000);
+//                hue += 20;
+//                if (hue > HSV_HUE_MAX) {
+//                    hue = HSV_HUE_MIN;
+//                }
 
             } else {
-                nextFrameDelay(60);
+                nextFrameDelay(30);
             }
             break;
     }

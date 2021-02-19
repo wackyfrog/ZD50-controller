@@ -50,28 +50,24 @@ namespace Display {
 
     static uint8_t address = 0x70;
 
-    static Font font = FONT_1;
+//    static Font font = FONT_1;
 
     uint8_t buffer[16];
 
-//    SoftI2C i2c(DISPLAY_I2C_PIN_SDA, DISPLAY_I2C_PIN_SCL, &DISPLAY_I2C_DDR, &DISPLAY_I2C_PIN, &DISPLAY_I2C_PORT, true);
+    uint8_t brightness;
 
     void clearBuffer() {
         memset(buffer, 0, sizeof(buffer));
     }
 
-    void print(char *text) {
-
-    }
-
-    void setFont(Font newFont) {
-        font = newFont;
-    }
-
-    Font getFont() {
-        return font;
-    }
-
+//    void setFont(Font newFont) {
+//        font = newFont;
+//    }
+//
+//    Font getFont() {
+//        return font;
+//    }
+//
 
     void send(uint8_t val) {
         i2c_start();
@@ -80,11 +76,18 @@ namespace Display {
         i2c_stop();
     }
 
+    uint8_t getBrightness() {
+        return brightness;
+    }
 
     void setBrightness(uint8_t level) {
-        if (HT16K33_DIM_1 >= 0 && level < HT16K33_DIM_16) {
-            send(HT16K33_DIM | level);
+        brightness = level;
+        if (level > HT16K33_DIM_16) {
+            level = HT16K33_DIM_16;
+        } else if (level < HT16K33_DIM_1) {
+            level = HT16K33_DIM_1;
         }
+        send(HT16K33_DIM | level);
     }
 
     void standby() {
@@ -183,7 +186,7 @@ namespace Display {
         return row < 8 ? row << 1 : ((row - 8) << 1) | 0x01;
     }
 
-    void displayImage(const uint8_t x, const uint8_t y, const uint64_t *image) {
+    void printBitmap(const uint8_t x, const uint8_t y, const uint64_t *image) {
         uint8_t row;
         uint64_t bitmap;
         memcpy_P(&bitmap, (uint64_t *) image, 8);
@@ -220,60 +223,85 @@ namespace Display {
         i2c_stop();
     }
 
-    void printVolume(const uint8_t volume) {
+    uint8_t getBitmapWidth(const uint64_t *image) {
+        uint64_t bitmap;
+        uint64_t mask;
+        uint8_t width;
+
+        memcpy_P(&bitmap, (uint64_t *) image, 8);
+
+        width = 8;
+        mask = 0x8080808080808080;
+        while ((width > 0) && ((bitmap & mask) == 0)) {
+            width--;
+            mask = mask >> 1;
+        }
+        return width;
+    }
+
+    void print(char *text) {
+        uint8_t x = 0;
+        char *textChar;
+        textChar = text;
+        // TODO Optimize
+        uint8_t totalWidth = 0;
+
+        while (*textChar != '\0') {
+            uint64_t *bitmap = (uint64_t *) &FONT[(uint8_t) *textChar - 48];
+            if (totalWidth > 0) {
+                ++totalWidth;
+            }
+            totalWidth += getBitmapWidth(bitmap);
+            textChar++;
+        }
+
+        textChar = text;
+        x = totalWidth > 16 ? 0 : (16 - totalWidth) >> 1;
+        while (*textChar != '\0') {
+            uint64_t *bitmap = (uint64_t *) &FONT[(uint8_t) *textChar - 48];
+            printBitmap(x, 0, bitmap);
+            textChar++;
+            if (x > 0) {
+                ++x;
+            }
+            x += getBitmapWidth(bitmap);
+        }
+    }
+
+    void printVolume(const char volume) {
         clearBuffer();
 
-        if (font == FONT_2) {
-            if (volume < 10) {
-                displayImage(8 - (DIGITS_2_WIDTH[volume] >> 1), 0, (uint64_t *) &DIGITS_2[volume]);
-
-            } else {
-                uint8_t ed = volume % 10;
-                uint8_t des = volume / 10;
-                char xPos = (16 - DIGITS_2_WIDTH[ed] - DIGITS_2_WIDTH[des] - 2) / 2;
-
-                ZD50::Serial.print(F("DISPL:xPos:"));
-                ZD50::Serial.println(xPos);
-
-                displayImage(xPos, 0, (uint64_t *) &DIGITS_2[des]);
-                xPos += DIGITS_2_WIDTH[des] + 2;
-                displayImage(xPos, 0, (uint64_t *) &DIGITS_2[ed]);
-            }
+        char buf[8] = {"\0"};
+        if (volume < 0) {
+            itoa(-volume, buf + 1, 10);
+            buf[0] = (char) 58;
+        } else {
+            itoa(volume, buf, 10);
         }
-
-        if (font == FONT_1) {
-            if (volume < 10) {
-                displayImage(4, 0, (uint64_t *) &DIGITS_1[volume]);
-
-            } else {
-                displayImage(1, 0, (uint64_t *) &DIGITS_1[volume / 10]);
-                displayImage(8, 0, (uint64_t *) &DIGITS_1[volume % 10]);
-            }
-        }
-
-
+//        buf[strlen(buf)] = (char) 59;
+        print(buf);
         flushBuffer();
     }
 
     void modeMute() {
         clearBuffer();
-        displayImage(3, 0, (uint64_t *) &SYMBOLS[0]);
-        displayImage(9, 0, (uint64_t *) &SYMBOLS[1]);
+        printBitmap(3, 0, (uint64_t *) &SYMBOLS[0]);
+        printBitmap(9, 0, (uint64_t *) &SYMBOLS[1]);
         flushBuffer();
         blink(FAST);
     }
 
     void displayWelcome() {
         clearBuffer();
-        displayImage(0, 0, (uint64_t *) &SYMBOLS[2]);
-        displayImage(8, 0, (uint64_t *) &SYMBOLS[3]);
+        printBitmap(0, 0, (uint64_t *) &SYMBOLS[2]);
+        printBitmap(8, 0, (uint64_t *) &SYMBOLS[3]);
         flushBuffer();
     }
 
     void displayHeadphones() {
         clearBuffer();
-        displayImage(0, 0, (uint64_t *) &SYMBOLS[4]);
-        displayImage(8, 0, (uint64_t *) &SYMBOLS[5]);
+        printBitmap(0, 0, (uint64_t *) &SYMBOLS[4]);
+        printBitmap(8, 0, (uint64_t *) &SYMBOLS[5]);
         flushBuffer();
     }
 
@@ -289,6 +317,5 @@ namespace Display {
         clearBuffer();
         flushBuffer();
     }
-
 
 }

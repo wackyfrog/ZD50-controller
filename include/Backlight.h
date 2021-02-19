@@ -8,6 +8,7 @@
 #include <Arduino.h>
 #include "Config.h"
 #include "Backlight/Scene.h"
+#include "FastHSV2RGB/fast_hsv2rgb.h"
 
 #define BACKLIGHT_LED_COUNT 12
 #define BACKLIGHT_BUF_SIZE (3 * BACKLIGHT_LED_COUNT)

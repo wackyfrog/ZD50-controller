@@ -8,7 +8,11 @@
 #include "Config.h"
 #include <Arduino.h>
 #include <AceRoutine.h>
+
+#ifndef ZD50_SERIAL_HARDWARE
 #include "SerialOut.h"
+#endif
+
 #include "PowerControl.h"
 #include "Backlight.h"
 #include "Attenuator.h"
@@ -25,11 +29,13 @@
 namespace ZD50 {
     void init();
 
-    Controller *getController();
+    void command(Controller::Command command, Controller::CommandParam param);
 
     void setVolume(int newVolume);
 
     int getVolume();
+
+    Controller *getController();
 
     void setController(Controller *newController, Controller *nextController = nullptr);
 
@@ -41,9 +47,12 @@ namespace ZD50 {
 
     namespace Luminance = Luminance;
 
-#ifdef ZD50_DEBUG_SERIAL
-    extern TinySerialOut Serial;
+#ifdef ZD50_SERIAL_HARDWARE
+    extern HardwareSerial &SerialOut;
+#else
+    extern TinySerialOut &SerialOut;
 #endif
+
 };
 
 #endif //ZD50_H

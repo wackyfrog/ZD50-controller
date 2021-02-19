@@ -16,7 +16,6 @@ static const int minBrightness = 0;
 static const int maxBrightness = 5;
 
 void SourcePowerOn::begin() {
-    ZD50::Serial.println(F("[SourcePowerOnScene::begin]"));
     state = 0;
 }
 
@@ -33,12 +32,12 @@ void SourcePowerOn::frame() {
             Backlight::update();
             bri += 1;
 
-            if (bri > 10) {
+            if (bri > 90) {
                 state = 2;
                 break;
             }
 
-            nextFrameDelay(100);
+            nextFrameDelay(20);
             break;
 
         case 2:

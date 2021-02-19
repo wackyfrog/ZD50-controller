@@ -16,7 +16,6 @@ static const int minBrightness = 0;
 static const int maxBrightness = 4;
 
 void PoweringOn::begin() {
-    ZD50::Serial.println(F("[PoweringOnScene::begin]"));
     state = 0;
 }
 
@@ -38,7 +37,7 @@ void PoweringOn::frame() {
     }
 
     Backlight::fill((Backlight::cRGB) {0, 0, 0});
-    cRGB color = (Backlight::cRGB) {2, 2, 2};
+    cRGB color = (Backlight::cRGB) {50, 50, 50};
 
     for (uint8_t index = 0; index < state; ++index) {
         Backlight::setPixel(LED_INDEX(index), color);

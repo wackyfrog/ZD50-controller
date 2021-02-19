@@ -6,14 +6,14 @@
 #include "Backlight/Scenes.h"
 #include "ZD50.h"
 
-Controller *SourcePowerOnState::controller() {
+Controller *SourcePowerOnState::getInstance() {
     static const SourcePowerOnState inst;
     return (Controller *) &inst;
 }
 
 void SourcePowerOnState::begin(Controller *previousController) {
 #ifdef ZD50_DEBUG_SERIAL
-    ZD50::Serial.println(F("[ZD50:SRC_ON:START]"));
+    ZD50::SerialOut.println(F("[ZD50:SRC_ON:START]"));
 #endif
 
     POWER_ON_SOURCE_ONLY();
@@ -31,13 +31,13 @@ void SourcePowerOnState::command(Command command, CommandParam param) {
         case Command::BUTTON_PRESS:
 
             switch (Button::getState()) {
-                case Button::State::PRESS:
-                    ZD50::setController(PoweringOnState::controller());
+                case Button::State::SHORT_PRESS:
+                    ZD50::setController(PoweringOnState::getInstance());
                     Backlight::Scene::startInstantScene(nullptr);
                     break;
 
                 case Button::State::MIDDLE_PRESS:
-                    ZD50::setController(StandbyState::controller());
+                    ZD50::setController(StandbyState::getInstance());
                     Backlight::Scene::startInstantScene(nullptr);
                     break;
 

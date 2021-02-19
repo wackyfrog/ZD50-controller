@@ -106,20 +106,13 @@ const unsigned char ttable[6][4] = {
             sei();
 
             if (value != 0) {
-                ZD50::getController()->command(Controller::Command::ROTATE, value);
-//                ZD50::Serial.print("[R:");
-//                ZD50::Serial.print(value);
-//                ZD50::Serial.println("]");
-                COROUTINE_DELAY(50);
+                ZD50::command(Controller::Command::ROTATE, value);
+                COROUTINE_DELAY(30);
             }
         }
     }
 
     void init() {
-#ifdef ZD50_DEBUG_SERIAL
-        ZD50::Serial.println(F("[Rotary:init]"));
-#endif
-
         ROTARY_DDR &= ~(ROTARY_PIN_A_BIT | ROTARY_PIN_B_BIT);
         ROTARY_PORT |= ROTARY_PIN_A_BIT | ROTARY_PIN_B_BIT;
 

@@ -6,14 +6,14 @@
 #include "Backlight/Scenes.h"
 #include "ZD50.h"
 
-Controller *PoweringOnState::controller() {
+Controller *PoweringOnState::getInstance() {
     static const PoweringOnState inst;
     return (Controller *) &inst;
 }
 
 void PoweringOnState::begin(Controller *previousController) {
 #ifdef ZD50_DEBUG_SERIAL
-    ZD50::Serial.println(F("[ZD50:PoweringOnState]"));
+    SerialOut.println(F("[ZD50:PoweringOnState]"));
 #endif
     Backlight::Scene::startInstantScene(nullptr);
     Backlight::Scene::startScene(BacklightScene::PoweringOn::getInstance());
@@ -24,7 +24,7 @@ void PoweringOnState::begin(Controller *previousController) {
         ZD50::Attenuator::setLevel(MAX_ATTENUATION_LEVEL, true);
 
     } else {
-        ZD50::Serial.println(F("[REFRESHING]"));
+        SerialOut.println(F("[REFRESHING]"));
         ZD50::Attenuator::setMode(Attenuator::POWER_SAVE);
         ZD50::Attenuator::setLevel(MIN_ATTENUATION_LEVEL, true);
         ZD50::Attenuator::setLevel(MAX_ATTENUATION_LEVEL, true);
@@ -41,7 +41,7 @@ void PoweringOnState::end() {
 void PoweringOnState::command(Command command, CommandParam param) {
     switch (command) {
         case Command::TIMEOUT:
-            ZD50::setController(PowerOnState::controller());
+            ZD50::setController(PowerOnState::getInstance());
             break;
 
         default:

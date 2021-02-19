@@ -6,21 +6,21 @@
 #include "Backlight/Scenes.h"
 #include "ZD50.h"
 
-Controller *PowerOnState::controller() {
+Controller *PowerOnState::getInstance() {
     static const PowerOnState inst;
     return (Controller *) &inst;
 }
 
 void PowerOnState::begin(Controller *previousController) {
 #ifdef ZD50_DEBUG_SERIAL
-    ZD50::Serial.println(F("[ZD50:ON:START]"));
+    ZD50::SerialOut.println(F("[ZD50:ON:START]"));
 #endif
 
     POWER_ON();
     Backlight::Scene::startScene(BacklightScene::PowerOn::getInstance());
     Backlight::Scene::startInstantScene(nullptr);
 
-    if (previousController == PoweringOffState::controller()) {
+    if (previousController == PoweringOffState::getInstance()) {
         // Returned from canceled powering off state
 
     } else {
@@ -39,25 +39,12 @@ void PowerOnState::command(Command command, CommandParam param) {
         case Command::BUTTON_PRESS:
 
             switch (Button::getState()) {
-                case Button::State::PRESS:
-                    ZD50::setController(PoweringOffState::controller(), StandbyState::controller());
+                case Button::State::SHORT_PRESS:
+                    ZD50::setController(PoweringOffState::getInstance(), StandbyState::getInstance());
                     break;
 
                 case Button::State::MIDDLE_PRESS:
-                    ZD50::setController(PoweringOffState::controller(), SourcePowerOnState::controller());
-                    break;
-
-                case Button::State::LONG_PRESS:
-                    switch (ZD50::Display::getFont()) {
-                        case ZD50::Display::FONT_1:
-                            ZD50::Display::setFont(ZD50::Display::FONT_2);
-                            break;
-
-                        case ZD50::Display::FONT_2:
-                            ZD50::Display::setFont(ZD50::Display::FONT_1);
-                            break;
-                    }
-                    ZD50::setVolume(ZD50::getVolume());
+                    ZD50::setController(PoweringOffState::getInstance(), SourcePowerOnState::getInstance());
                     break;
 
                 default:

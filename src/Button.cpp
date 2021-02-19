@@ -28,7 +28,7 @@ namespace Button {
             COROUTINE_AWAIT(isPressed);
             COROUTINE_DELAY(statesTransition[state].time);
             if (isPressed) {
-                state = PRESS;
+                state = SHORT_PRESS;
                 pressStartedMillis = millis();
             }
             COROUTINE_AWAIT(!isPressed);
@@ -52,12 +52,12 @@ namespace Button {
                 }
 
                 if (/*pressingTime > statesTransition[state].time &&*/ pressingTime > nextUpdateTime) {
-                    ZD50::getController()->command(Controller::Command::BUTTON_PRESSING, state);
+                    ZD50::command(Controller::Command::BUTTON_PRESSING, state);
                     nextUpdateTime = pressingTime + statesTransition[state].time;
                 }
 
             } else {
-                ZD50::getController()->command(Controller::Command::BUTTON_PRESS, state);
+                ZD50::command(Controller::Command::BUTTON_PRESS, state);
                 pressStartedMillis = 0;
                 nextUpdateTime = 0;
                 state = UNPRESSED;
@@ -66,8 +66,6 @@ namespace Button {
     }
 
     void init() {
-        ZD50::Serial.println(F("[Button:init]"));
-
         BUTTON_INIT_PORT();
         isPressed = BUTTON_PRESS_STATE();
 

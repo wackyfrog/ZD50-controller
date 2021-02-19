@@ -15,7 +15,7 @@ public:
 
     void command(Controller::Command command, Controller::CommandParam param);
 
-    static Controller *controller();
+    static Controller *getInstance();
 };
 
 #endif //ZD50_SOURCE_POWER_ON_STATE_H

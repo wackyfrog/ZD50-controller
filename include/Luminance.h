@@ -15,7 +15,7 @@
 namespace Luminance {
     void init();
 
-    int update();
+    int read();
 
     int getValue();
 };

@@ -13,7 +13,7 @@ public:
 
     void command(Controller::Command command, Controller::CommandParam param);
 
-    static Controller *controller();
+    static Controller *getInstance();
 
     void end() override;
 };

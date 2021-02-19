@@ -4,9 +4,9 @@
 #define FLIPPED_MATRIX
 
 namespace Display {
-    enum Font {
-        FONT_1, FONT_2
-    };
+//    enum Font {
+//        FONT_1
+//    };
 
     enum Blink {
         NONE,
@@ -33,8 +33,6 @@ namespace Display {
 
     void displayOff();
 
-    void printVolume(const uint8_t volume);
-
     void modeMute();
 
     void clear();
@@ -43,7 +41,11 @@ namespace Display {
 
     uint8_t getRamAdr(uint8_t row);
 
-    void displayImage(const uint8_t x, const uint8_t y, const uint64_t *image);
+    void printVolume(const char volume);
+
+    void printBitmap(const uint8_t x, const uint8_t y, const uint64_t *image);
+
+    uint8_t getBitmapWidth(const uint64_t *image);
 
     void flushBuffer();
 
@@ -51,9 +53,11 @@ namespace Display {
 
     void displayHeadphones();
 
-    void setFont(Font newFont);
+    uint8_t getBrightness();
 
-    Font getFont();
+//    void setFont(Font newFont);
+
+//    Font getFont();
 
 };
 

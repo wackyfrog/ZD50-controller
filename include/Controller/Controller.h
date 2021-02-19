@@ -50,7 +50,7 @@ public:
 
     virtual void command(Command command, CommandParam param) {};
 
-    static Controller *controller();
+    static Controller *getInstance();
 
     void setPendingController(Controller *controller) {
         pendingController = controller;

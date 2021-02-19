@@ -13,10 +13,9 @@ static uint8_t state = 0;
 static int bri;
 static int briStep;
 static const int minBrightness = 0;
-static const int maxBrightness = 4;
+static const int maxBrightness = 100;
 
 void Pulse::begin() {
-    ZD50::Serial.println(F("[PulseScene::begin]"));
     state = 0;
 }
 

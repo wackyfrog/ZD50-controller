@@ -5,17 +5,25 @@
 #include "ZD50.h"
 #include "Controller/StandbyState.h"
 
-TinySerialOut ZD50::Serial = SerialOut;
-
 namespace ZD50 {
+#ifdef ZD50_SERIAL_HARDWARE
+    HardwareSerial &SerialOut = Serial;
+#else
+    TinySerialOut &SerialOut = SerialOut;
+#endif
+
+
     Controller *controller;
+    Controller *menuController;
+
+    MenuSettings *menu = nullptr;
 
     int volume = 0;
 
     void init() {
 #ifdef ZD50_DEBUG_SERIAL
-        Serial.begin(0);
-        Serial.println(F("[ZD50:init]"));
+        SerialOut.begin(38400);
+        SerialOut.println(F("[ZD50:init]"));
 #endif
         POWER_INIT();
         POWER_OFF();
@@ -26,7 +34,7 @@ namespace ZD50 {
         _delay_ms(200);
         Attenuator::init();
         Display::clear();
-        setController(StandbyState::controller());
+        setController(StandbyState::getInstance());
         Luminance::init();
         Button::init();
         Rotary::init();
@@ -36,7 +44,7 @@ namespace ZD50 {
         return controller;
     }
 
-    void setController(Controller *newController, Controller *pendingtController) {
+    void setController(Controller *newController, Controller *pendingController) {
         if (newController == controller) {
             return;
         }
@@ -44,7 +52,7 @@ namespace ZD50 {
             controller->end();
         }
         if (newController != nullptr) {
-            newController->setPendingController(pendingtController);
+            newController->setPendingController(pendingController);
             newController->begin(controller);
         }
         controller = newController;
@@ -55,7 +63,6 @@ namespace ZD50 {
     }
 
     void setVolume(int newVolume) {
-        ZD50::Serial.println(newVolume);
         if (newVolume > VOLUME_MAX_VALUE) {
             newVolume = VOLUME_MAX_VALUE;
         }
@@ -69,6 +76,10 @@ namespace ZD50 {
         Display::printVolume((uint8_t) volume);
     }
 
+    void command(Controller::Command command, Controller::CommandParam param) {
+        ZD50::getController()->command(command, param);
+    }
+
     COROUTINE(controllerTick) {
         COROUTINE_LOOP() {
             COROUTINE_DELAY(100);
@@ -77,6 +88,29 @@ namespace ZD50 {
                 controller->command(Controller::Command::TIMEOUT, 0);
             }
             COROUTINE_DELAY(100);
+        }
+    }
+
+    COROUTINE(liminance) {
+        COROUTINE_LOOP() {
+            COROUTINE_DELAY(1000);
+
+            uint8_t brightness = 16 - (Luminance::read() >> 6);
+            if (ZD50::Display::getBrightness() != brightness) {
+                ZD50::Display::setBrightness(brightness);
+
+                Serial.print(F("IL:"));
+                Serial.print(Luminance::getValue());
+                Serial.print(F(":BR:"));
+                Serial.print(brightness);
+                Serial.println();
+            }
+
+            static char rxChar;
+            while (-1 != (rxChar = Serial.read())) {
+                Serial.print(rxChar);
+            }
+
         }
     }
 }
