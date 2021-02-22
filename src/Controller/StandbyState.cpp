@@ -8,19 +8,20 @@
 #include "Display/Font.h"
 #include "Menu/Menu.h"
 
-MENU_ITEM(MenuBrightness, Brightness,
+
+MENU_ITEM(MenuBrightness, Menu::Brightness,
           MENU_NULL, MenuHue, MENU_NULL, MENU_NULL,
           StandbyState::onMenuSelect,
           StandbyState::onMenuEnter,
           StandbyState::onMenuItemChange);
 
-MENU_ITEM(MenuHue, Hue,
+MENU_ITEM(MenuHue, Menu::Hue,
           MenuBrightness, MenuSaturation, MENU_NULL, MENU_NULL,
           StandbyState::onMenuSelect,
           StandbyState::onMenuEnter,
           StandbyState::onMenuItemChange);
 
-MENU_ITEM(MenuSaturation, Saturation,
+MENU_ITEM(MenuSaturation, Menu::Saturation,
           MenuHue, MENU_NULL, MENU_NULL, MENU_NULL,
           StandbyState::onMenuSelect,
           StandbyState::onMenuEnter,
@@ -66,7 +67,7 @@ void StandbyState::command(Command command, CommandParam param) {
                     break;
 
                 case Button::State::LONG_PRESS:
-                    menuSelect(&MenuBrightness);
+                    select(&MenuBrightness);
                     break;
 
                 default:
@@ -90,19 +91,19 @@ void StandbyState::onMenuClose() {
     Display::clear();
 }
 
-void StandbyState::onMenuSelect(MenuId id) {
+void StandbyState::onMenuSelect(Menu::Id id) {
     Serial.print(F("[MENU_SELECT:"));
     Serial.print(id);
     Serial.println(F("]"));
 }
 
-void StandbyState::onMenuEnter(MenuId id) {
+void StandbyState::onMenuEnter(Menu::Id id) {
     Serial.print(F("[MENU_ENTER:"));
     Serial.print(id);
     Serial.println(F("]"));
 }
 
-void StandbyState::onMenuItemChange(MenuId id, int value) {
+void StandbyState::onMenuItemChange(Menu::Id id, int value) {
     Serial.print(F("[ADJ:"));
     Serial.print(id);
     Serial.print(F(":"));

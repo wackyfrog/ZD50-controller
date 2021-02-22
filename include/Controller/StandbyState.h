@@ -17,11 +17,11 @@ public:
 
     void end() override;
 
-    static void onMenuSelect(MenuId id);
+    static void onMenuSelect(Menu::Id id);
 
-    static void onMenuEnter(MenuId id);
+    static void onMenuEnter(Menu::Id id);
 
-    static void onMenuItemChange(MenuId id, int value);
+    static void onMenuItemChange(Menu::Id id, int value);
 
 private:
     void onMenuClose() override;

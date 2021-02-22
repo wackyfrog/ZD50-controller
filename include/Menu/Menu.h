@@ -7,51 +7,54 @@
 
 #include <stdint.h>
 
-typedef enum : uint8_t {
-    Exit = 0,
-    Brightness, Hue, Saturation
-} MenuId;
+namespace Menu {
+    typedef enum : uint8_t {
+        Exit = 0,
+        Brightness, Hue, Saturation
+    } Id;
 
-typedef void(MenuCallback)(MenuId id);
+    typedef void(SelectCallback)(Id id);
 
-typedef void(MenuChangeCallback)(MenuId id, int value);
+    typedef void(EnterCallback)(Id id);
 
-typedef const struct MenuItemStruct {
-    const MenuId id;
-    const struct MenuItemStruct *previous;
-    const struct MenuItemStruct *next;
-    const struct MenuItemStruct *parent;
-    const struct MenuItemStruct *child;
-    MenuCallback *onSelect;
-    MenuCallback *onEnter;
-    MenuChangeCallback *onChange;
-} MenuItem;
+    typedef void(ChangeCallback)(Id id, int value);
 
-bool menuSelect(const MenuItem *newMenu);
+    typedef const struct ItemStruct {
+        const Id id;
+        const struct ItemStruct *previous;
+        const struct ItemStruct *next;
+        const struct ItemStruct *parent;
+        const struct ItemStruct *child;
+        SelectCallback *onSelect;
+        EnterCallback *onEnter;
+        ChangeCallback *onChange;
+    } Item;
 
-bool menuSelect();
+    bool select(const Item *newMenu);
 
-bool menuLeave();
+    bool select();
 
-bool menuNext();
+    bool leave();
 
-bool menuPrevious();
+    bool next();
 
-bool isMenuActive();
+    bool previous();
 
-bool isMenuEntered();
+    bool isActive();
 
-void menuFinish();
+    bool isEntered();
 
+    void finish();
 
-extern const MenuItem MENU_NULL_;
-#define MENU_NULL MENU_NULL_
+    extern const Item _EMPTY;
+}
+#define MENU_NULL (Menu::_EMPTY)
 
 #define MENU_ITEM(name, id, previous, next, parent, child, onSelect, onEnter, onChange) \
-    extern MenuItem PROGMEM previous; \
-    extern MenuItem PROGMEM next;     \
-    extern MenuItem PROGMEM parent;   \
-    extern MenuItem PROGMEM child;  \
-    MenuItem name = {id, &previous, &next, &parent, &child, &onSelect, &onEnter, &onChange}
+    extern Menu::Item PROGMEM previous; \
+    extern Menu::Item PROGMEM next;     \
+    extern Menu::Item PROGMEM parent;   \
+    extern Menu::Item PROGMEM child;  \
+    Menu::Item name = {id, &previous, &next, &parent, &child, &onSelect, &onEnter, &onChange}
 
 #endif //ZD50_CONTROLLER_MENU_H

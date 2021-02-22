@@ -75,18 +75,18 @@ namespace ZD50 {
     bool handleMenuButton() {
         switch (Button::getState()) {
             case Button::SHORT_PRESS:
-                menuSelect();
+                Menu::select();
                 break;
 
             case Button::MIDDLE_PRESS:
-                if (!menuLeave()) {
-                    menuFinish();
+                if (!Menu::leave()) {
+                    Menu::finish();
                     controller->onMenuClose();
                 }
                 break;
 
             case Button::LONG_PRESS:
-                menuFinish();
+                Menu::finish();
                 controller->onMenuClose();
                 break;
 
@@ -110,7 +110,7 @@ namespace ZD50 {
     }
 
     bool handleMenuCommand(Controller::Command command, int param) {
-        if (!isMenuActive()) {
+        if (!Menu::isActive()) {
             return false;
         }
 
@@ -119,13 +119,13 @@ namespace ZD50 {
                 return handleMenuButton();
 
             case Controller::Command::ROTATE:
-                if (!isMenuEntered() && throttleMovementCommand(command, param)) {
+                if (!Menu::isEntered() && throttleMovementCommand(command, param)) {
                     return true;
                 }
                 if (param > 0) {
-                    menuNext();
+                    Menu::next();
                 } else if (param < 0) {
-                    menuPrevious();
+                    Menu::previous();
                 }
                 return true;
 
