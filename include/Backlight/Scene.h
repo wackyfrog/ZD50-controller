@@ -32,6 +32,8 @@ namespace Backlight {
 
         static void startInstantScene(Scene *newScene);
 
+        static void stopInstantScene();
+
         static void startScene(Scene *newScene);
 
         static Scene *getInstance();

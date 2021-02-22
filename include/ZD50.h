@@ -37,7 +37,8 @@ namespace ZD50 {
 
     Controller *getController();
 
-    void setController(Controller *newController, Controller *nextController = nullptr);
+    void setController(Controller *newController, int param = 0);
+
 
     namespace Attenuator = Attenuator;
 

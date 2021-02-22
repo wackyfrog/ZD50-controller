@@ -9,7 +9,7 @@
 
 class SourcePowerOnState : Controller {
 public:
-    void begin(Controller *previousController);
+    void begin(Controller *previousController, int param);
 
     void end();
 

@@ -7,17 +7,17 @@
 #include "ZD50.h"
 
 Controller *StandbyState::getInstance() {
-    static const StandbyState inst;
+    static StandbyState inst;
     return (Controller *) &inst;
 }
 
-void StandbyState::begin(Controller *previousController) {
+void StandbyState::begin(Controller *previousController, int param) {
 #ifdef ZD50_DEBUG_SERIAL
     ZD50::SerialOut.println(F("[ZD50:Standby]"));
 #endif
     POWER_OFF();
 
-    Backlight::Scene::startInstantScene(nullptr);
+    Backlight::Scene::stopInstantScene();
     ZD50::Backlight::Scene::startScene(BacklightScene::Standby::getInstance());
     Display::clear();
 
@@ -28,7 +28,7 @@ void StandbyState::begin(Controller *previousController) {
 }
 
 void StandbyState::end() {
-    Backlight::Scene::startInstantScene(nullptr);
+    Backlight::Scene::stopInstantScene();
 }
 
 void StandbyState::command(Command command, CommandParam param) {
@@ -38,12 +38,12 @@ void StandbyState::command(Command command, CommandParam param) {
             switch (Button::getState()) {
                 case Button::State::SHORT_PRESS:
                     ZD50::setController(PoweringOnState::getInstance());
-                    Backlight::Scene::startInstantScene(nullptr);
+                    Backlight::Scene::stopInstantScene();
                     break;
 
                 case Button::State::MIDDLE_PRESS:
                     ZD50::setController(SourcePowerOnState::getInstance());
-                    Backlight::Scene::startInstantScene(nullptr);
+                    Backlight::Scene::stopInstantScene();
                     break;
 
                 default:

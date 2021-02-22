@@ -7,45 +7,36 @@
 #include "ZD50.h"
 
 Controller *PoweringOnState::getInstance() {
-    static const PoweringOnState inst;
+    static PoweringOnState inst;
     return (Controller *) &inst;
 }
 
-void PoweringOnState::begin(Controller *previousController) {
-#ifdef ZD50_DEBUG_SERIAL
-    SerialOut.println(F("[ZD50:PoweringOnState]"));
-#endif
-    Backlight::Scene::startInstantScene(nullptr);
+void PoweringOnState::begin(Controller *previousController, int param) {
+    stopAtTime = millis() + 2000;
+
     Backlight::Scene::startScene(BacklightScene::PoweringOn::getInstance());
     Display::clear();
 
     if (IS_MAIN_POWER_ON()) {
         ZD50::Attenuator::setMode(Attenuator::NORMAL);
-        ZD50::Attenuator::setLevel(MAX_ATTENUATION_LEVEL, true);
 
     } else {
-        SerialOut.println(F("[REFRESHING]"));
+        ZD50::SerialOut.println(F("[REFRESHING]"));
         ZD50::Attenuator::setMode(Attenuator::POWER_SAVE);
         ZD50::Attenuator::setLevel(MIN_ATTENUATION_LEVEL, true);
-        ZD50::Attenuator::setLevel(MAX_ATTENUATION_LEVEL, true);
     }
 
+    ZD50::Attenuator::setLevel(MAX_ATTENUATION_LEVEL, true);
     POWER_SWITCHING_ON();
-    setTimeout(2000);
+}
+
+void PoweringOnState::tick() {
+    if (millis() > stopAtTime) {
+        ZD50::setController(PowerOnState::getInstance());
+    }
 }
 
 void PoweringOnState::end() {
-    Backlight::Scene::startInstantScene(nullptr);
+    Backlight::Scene::stopInstantScene();
 }
 
-void PoweringOnState::command(Command command, CommandParam param) {
-    switch (command) {
-        case Command::TIMEOUT:
-            ZD50::setController(PowerOnState::getInstance());
-            break;
-
-        default:
-            break;
-
-    }
-}

@@ -9,7 +9,7 @@
 
 class PowerOnState : Controller {
 public:
-    void begin(Controller *previousController);
+    void begin(Controller *previousController, int param);
 
     void command(Controller::Command command, Controller::CommandParam param);
 

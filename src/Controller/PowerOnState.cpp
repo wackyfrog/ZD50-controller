@@ -7,18 +7,18 @@
 #include "ZD50.h"
 
 Controller *PowerOnState::getInstance() {
-    static const PowerOnState inst;
+    static PowerOnState inst;
     return (Controller *) &inst;
 }
 
-void PowerOnState::begin(Controller *previousController) {
+void PowerOnState::begin(Controller *previousController, int param) {
 #ifdef ZD50_DEBUG_SERIAL
     ZD50::SerialOut.println(F("[ZD50:ON:START]"));
 #endif
 
     POWER_ON();
     Backlight::Scene::startScene(BacklightScene::PowerOn::getInstance());
-    Backlight::Scene::startInstantScene(nullptr);
+    Backlight::Scene::stopInstantScene();
 
     if (previousController == PoweringOffState::getInstance()) {
         // Returned from canceled powering off state
@@ -31,7 +31,7 @@ void PowerOnState::begin(Controller *previousController) {
 }
 
 void PowerOnState::end() {
-    Backlight::Scene::startInstantScene(nullptr);
+    Backlight::Scene::stopInstantScene();
 }
 
 void PowerOnState::command(Command command, CommandParam param) {
@@ -40,11 +40,11 @@ void PowerOnState::command(Command command, CommandParam param) {
 
             switch (Button::getState()) {
                 case Button::State::SHORT_PRESS:
-                    ZD50::setController(PoweringOffState::getInstance(), StandbyState::getInstance());
+                    ZD50::setController(PoweringOffState::getInstance(), PoweringOffState::StandBy);
                     break;
 
                 case Button::State::MIDDLE_PRESS:
-                    ZD50::setController(PoweringOffState::getInstance(), SourcePowerOnState::getInstance());
+                    ZD50::setController(PoweringOffState::getInstance(), PoweringOffState::PowerOnSource);
                     break;
 
                 default:
@@ -59,6 +59,7 @@ void PowerOnState::command(Command command, CommandParam param) {
         case Command::ROTATE:
             ZD50::setVolume((int) param + ZD50::getVolume());
             break;
+
         default:
             break;
 
