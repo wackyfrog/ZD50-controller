@@ -17,6 +17,15 @@ public:
 
     void end() override;
 
+    static void onMenuSelect(MenuId id);
+
+    static void onMenuEnter(MenuId id);
+
+    static void onMenuItemChange(MenuId id, int value);
+
+private:
+    void onMenuClose() override;
+
 private:
 };
 

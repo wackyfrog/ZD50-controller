@@ -17,7 +17,7 @@ const int minBrightness = 0;
 const int maxBrightness = 45;
 
 static uint16_t hue;
-static uint8_t val;
+//static uint8_t val;
 static cRGB color;
 
 void Standby::begin() {

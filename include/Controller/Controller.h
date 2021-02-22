@@ -8,6 +8,7 @@
 #include "Button.h"
 #include "Rotary.h"
 #include <Arduino.h>
+#include "Menu/Menu.h"
 
 class Controller {
 public:
@@ -30,6 +31,9 @@ public:
     virtual void command(Command cmd, CommandParam param) {};
 
     virtual void tick() {};
+
+    virtual void onMenuClose() {};
+
 
     static Controller *getInstance();
 

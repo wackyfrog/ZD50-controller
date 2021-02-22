@@ -5,6 +5,26 @@
 #include "Controller/States.h"
 #include "Backlight/Scenes.h"
 #include "ZD50.h"
+#include "Display/Font.h"
+#include "Menu/Menu.h"
+
+MENU_ITEM(MenuBrightness, Brightness,
+          MENU_NULL, MenuHue, MENU_NULL, MENU_NULL,
+          StandbyState::onMenuSelect,
+          StandbyState::onMenuEnter,
+          StandbyState::onMenuItemChange);
+
+MENU_ITEM(MenuHue, Hue,
+          MenuBrightness, MenuSaturation, MENU_NULL, MENU_NULL,
+          StandbyState::onMenuSelect,
+          StandbyState::onMenuEnter,
+          StandbyState::onMenuItemChange);
+
+MENU_ITEM(MenuSaturation, Saturation,
+          MenuHue, MENU_NULL, MENU_NULL, MENU_NULL,
+          StandbyState::onMenuSelect,
+          StandbyState::onMenuEnter,
+          StandbyState::onMenuItemChange);
 
 Controller *StandbyState::getInstance() {
     static StandbyState inst;
@@ -43,7 +63,10 @@ void StandbyState::command(Command command, CommandParam param) {
 
                 case Button::State::MIDDLE_PRESS:
                     ZD50::setController(SourcePowerOnState::getInstance());
-                    Backlight::Scene::stopInstantScene();
+                    break;
+
+                case Button::State::LONG_PRESS:
+                    menuSelect(&MenuBrightness);
                     break;
 
                 default:
@@ -59,5 +82,31 @@ void StandbyState::command(Command command, CommandParam param) {
             break;
 
     }
+}
+
+
+void StandbyState::onMenuClose() {
+    Serial.println(F("[MENU_CLOSE]"));
+    Display::clear();
+}
+
+void StandbyState::onMenuSelect(MenuId id) {
+    Serial.print(F("[MENU_SELECT:"));
+    Serial.print(id);
+    Serial.println(F("]"));
+}
+
+void StandbyState::onMenuEnter(MenuId id) {
+    Serial.print(F("[MENU_ENTER:"));
+    Serial.print(id);
+    Serial.println(F("]"));
+}
+
+void StandbyState::onMenuItemChange(MenuId id, int value) {
+    Serial.print(F("[ADJ:"));
+    Serial.print(id);
+    Serial.print(F(":"));
+    Serial.print(value);
+    Serial.println(F("]"));
 }
 
