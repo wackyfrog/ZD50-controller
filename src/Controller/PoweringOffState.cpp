@@ -6,34 +6,45 @@
 #include "Backlight/Scenes.h"
 #include "ZD50.h"
 
+
 Controller *PoweringOffState::getInstance() {
-    static const PoweringOffState inst;
+    static PoweringOffState inst;
     return (Controller *) &inst;
 }
 
-void PoweringOffState::begin(Controller *previousController) {
-#ifdef ZD50_DEBUG_SERIAL
-    ZD50::SerialOut.println(F("[ZD50:PoweringOffState]"));
-#endif
-    Backlight::Scene::startInstantScene(nullptr);
+void PoweringOffState::begin(Controller *previousController, int param) {
+    stopAtTime = millis() + 1000;
+    targetState = (TargetState) param;
+
+    Backlight::Scene::stopInstantScene();
     Backlight::Scene::startScene(BacklightScene::PoweringOff::getInstance());
 
     POWER_SWITCHING_OFF();
-    setTimeout(1000);
+}
+
+void PoweringOffState::tick() {
+    if (millis() > stopAtTime) {
+        ZD50::Attenuator::setMode(Attenuator::NORMAL);
+        ZD50::Attenuator::setLevel(MAX_ATTENUATION_LEVEL, true);
+
+        switch (targetState) {
+            case PowerOnSource:
+                ZD50::setController(PowerOnState::getInstance());
+                break;
+
+            case StandBy:
+            default:
+                ZD50::setController(StandbyState::getInstance());
+        }
+    }
 }
 
 void PoweringOffState::end() {
-    Backlight::Scene::startInstantScene(nullptr);
+    Backlight::Scene::stopInstantScene();
 }
 
 void PoweringOffState::command(Command command, CommandParam param) {
     switch (command) {
-        case Command::TIMEOUT:
-            ZD50::Attenuator::setMode(Attenuator::NORMAL);
-            ZD50::Attenuator::setLevel(MAX_ATTENUATION_LEVEL, true);
-            ZD50::setController(getPendingController() ?: StandbyState::getInstance());
-            break;
-
         case Command::BUTTON_PRESS:
             ZD50::setController(PowerOnState::getInstance());
             break;

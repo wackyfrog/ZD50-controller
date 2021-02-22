@@ -9,13 +9,24 @@
 
 class PoweringOffState : Controller {
 public:
-    void begin(Controller *previousController);
+    typedef enum {
+        StandBy, PowerOnSource
+    } TargetState;
+
+    void begin(Controller *previousController, int param);
 
     void command(Controller::Command command, Controller::CommandParam param);
 
     static Controller *getInstance();
 
     void end() override;
+
+private:
+    uint8_t targetState;
+
+    unsigned long stopAtTime = 0;
+
+    void tick() override;
 };
 
 

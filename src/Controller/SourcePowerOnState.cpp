@@ -7,11 +7,11 @@
 #include "ZD50.h"
 
 Controller *SourcePowerOnState::getInstance() {
-    static const SourcePowerOnState inst;
+    static SourcePowerOnState inst;
     return (Controller *) &inst;
 }
 
-void SourcePowerOnState::begin(Controller *previousController) {
+void SourcePowerOnState::begin(Controller *previousController, int param) {
 #ifdef ZD50_DEBUG_SERIAL
     ZD50::SerialOut.println(F("[ZD50:SRC_ON:START]"));
 #endif
@@ -19,11 +19,11 @@ void SourcePowerOnState::begin(Controller *previousController) {
     POWER_ON_SOURCE_ONLY();
     ZD50::Display::displayHeadphones();
     Backlight::Scene::startScene(BacklightScene::SourcePowerOn::getInstance());
-    Backlight::Scene::startInstantScene(nullptr);
+    Backlight::Scene::stopInstantScene();
 }
 
 void SourcePowerOnState::end() {
-    Backlight::Scene::startInstantScene(nullptr);
+    Backlight::Scene::stopInstantScene();
 }
 
 void SourcePowerOnState::command(Command command, CommandParam param) {
@@ -33,12 +33,12 @@ void SourcePowerOnState::command(Command command, CommandParam param) {
             switch (Button::getState()) {
                 case Button::State::SHORT_PRESS:
                     ZD50::setController(PoweringOnState::getInstance());
-                    Backlight::Scene::startInstantScene(nullptr);
+                    Backlight::Scene::stopInstantScene();
                     break;
 
                 case Button::State::MIDDLE_PRESS:
                     ZD50::setController(StandbyState::getInstance());
-                    Backlight::Scene::startInstantScene(nullptr);
+                    Backlight::Scene::stopInstantScene();
                     break;
 
                 default:

@@ -9,13 +9,16 @@
 
 class PoweringOnState : Controller {
 public:
-    void begin(Controller *previousController);
-
-    void command(Controller::Command command, Controller::CommandParam param);
+    void begin(Controller *previousController, int param);
 
     static Controller *getInstance();
 
     void end() override;
+
+private:
+    void tick() override;
+
+    unsigned long stopAtTime;
 };
 
 

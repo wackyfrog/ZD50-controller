@@ -13,7 +13,6 @@ class Controller {
 public:
 
     typedef enum {
-        TIMEOUT = 0,
         VOLUME = 1,
         VOLUME_INCREMENT = 2,
         VOLUME_DECREMENT = 3,
@@ -24,46 +23,17 @@ public:
 
     typedef int CommandParam;
 
-    void setTimeout(unsigned long ms) {
-        timoutExpireAt = millis() + ms;
-    }
-
-    void stopTimeout() {
-        timoutExpireAt = 0;
-    }
-
-    bool isTimeoutActive() {
-        return timoutExpireAt != 0;
-    }
-
-    bool isTimeoutExpired() {
-        return millis() > timoutExpireAt;
-    }
-
-    void reset() {
-        stopTimeout();
-    }
-
-    virtual void begin(Controller *previousController) {};
+    virtual void begin(Controller *previousController, int param) {};
 
     virtual void end() {};
 
-    virtual void command(Command command, CommandParam param) {};
+    virtual void command(Command cmd, CommandParam param) {};
+
+    virtual void tick() {};
 
     static Controller *getInstance();
 
-    void setPendingController(Controller *controller) {
-        pendingController = controller;
-    }
-
-    Controller *getPendingController() const {
-        return pendingController;
-    }
-
 private:
-    unsigned long timoutExpireAt = 0;
-
-    Controller *pendingController = nullptr;
 };
 
 

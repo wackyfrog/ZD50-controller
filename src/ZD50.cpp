@@ -14,9 +14,6 @@ namespace ZD50 {
 
 
     Controller *controller;
-    Controller *menuController;
-
-    MenuSettings *menu = nullptr;
 
     int volume = 0;
 
@@ -44,7 +41,7 @@ namespace ZD50 {
         return controller;
     }
 
-    void setController(Controller *newController, Controller *pendingController) {
+    void setController(Controller *newController, int param) {
         if (newController == controller) {
             return;
         }
@@ -52,8 +49,7 @@ namespace ZD50 {
             controller->end();
         }
         if (newController != nullptr) {
-            newController->setPendingController(pendingController);
-            newController->begin(controller);
+            newController->begin(controller, param);
         }
         controller = newController;
     }
@@ -82,11 +78,8 @@ namespace ZD50 {
 
     COROUTINE(controllerTick) {
         COROUTINE_LOOP() {
-            COROUTINE_DELAY(100);
-            COROUTINE_AWAIT(controller != nullptr && controller->isTimeoutActive());
-            if (controller->isTimeoutExpired()) {
-                controller->command(Controller::Command::TIMEOUT, 0);
-            }
+            COROUTINE_AWAIT(controller != nullptr);
+            controller->tick();
             COROUTINE_DELAY(100);
         }
     }
@@ -99,11 +92,11 @@ namespace ZD50 {
             if (ZD50::Display::getBrightness() != brightness) {
                 ZD50::Display::setBrightness(brightness);
 
-                Serial.print(F("IL:"));
-                Serial.print(Luminance::getValue());
-                Serial.print(F(":BR:"));
-                Serial.print(brightness);
-                Serial.println();
+                SerialOut.print(F("IL:"));
+                SerialOut.print(Luminance::getValue());
+                SerialOut.print(F(":BR:"));
+                SerialOut.print(brightness);
+                SerialOut.println();
             }
 
             static char rxChar;
