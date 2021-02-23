@@ -28,6 +28,7 @@ namespace ZD50 {
         Backlight::init();
         Display::init();
         Display::displayWelcome();
+        Settings::init();
         _delay_ms(200);
         Attenuator::init();
         Display::clear();
