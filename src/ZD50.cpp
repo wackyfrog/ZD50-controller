@@ -69,7 +69,7 @@ namespace ZD50 {
             volume = newVolume;
             Attenuator::setLevel(VOLUME_TO_ATTENUATION_LEVEL(volume), VOLUME_TO_MUTE_STATE(volume));
         }
-        Display::printVolume((uint8_t) volume);
+        Display::print((uint8_t) volume);
     }
 
     bool handleMenuButton() {

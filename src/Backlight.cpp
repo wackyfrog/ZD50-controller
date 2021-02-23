@@ -14,7 +14,7 @@ namespace Backlight {
 
     void init() {
         DDRD |= BACKLIGHT_PIN_MASK;
-        fill((cRGB) {0, 5, 0});
+        fill((cRGB) {0, 30, 0});
     }
 
     cRGB getPixel(uint8_t index) {

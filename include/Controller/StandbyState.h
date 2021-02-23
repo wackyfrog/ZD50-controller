@@ -21,7 +21,11 @@ public:
 
     static void onMenuEnter(Menu::Id id);
 
-    static void onMenuItemChange(Menu::Id id, int value);
+    static void settingLightnessMaxAdjust(Menu::Id id, int value);
+
+    static void settingSaturationAdjust(Menu::Id id, int value);
+
+    static void settingHueAdjust(Menu::Id id, int value);
 
 private:
     void onMenuClose() override;

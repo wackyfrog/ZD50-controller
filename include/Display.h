@@ -8,12 +8,16 @@ namespace Display {
 //        FONT_1
 //    };
 
-    enum Blink {
+    typedef enum {
+        CENTER = -1
+    } Align;
+
+    typedef enum {
         NONE,
         SLOW,
         MEDIUM,
         FAST
-    };
+    } Blink;
 
     void init();
 
@@ -41,9 +45,9 @@ namespace Display {
 
     uint8_t getRamAdr(uint8_t row);
 
-    void printVolume(const char volume);
+    void print(const int volume);
 
-    void printBitmap(const uint8_t x, const uint8_t y, const uint64_t *image);
+    void printBitmap(const char x, const char y, const uint64_t *image);
 
     uint8_t getBitmapWidth(const uint64_t *image);
 

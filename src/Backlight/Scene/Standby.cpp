@@ -12,24 +12,19 @@ using namespace BacklightScene;
 
 static uint8_t state = 0;
 static int bri;
-static int briStep;
-const int minBrightness = 0;
-const int maxBrightness = 45;
 
-static uint16_t hue;
 //static uint8_t val;
 static cRGB color;
 
 void Standby::begin() {
     state = 0;
-    hue = HSV_HUE_MIN;
 }
 
 void Standby::frame() {
     switch (state) {
         case 0:
             bri = 0;
-            briStep = 1;
+            stepLightness = 1;
             state++;
             break;
 
@@ -42,23 +37,23 @@ void Standby::frame() {
             break;
 
         case 2:
-            fast_hsv2rgb_32bit(0, 10, bri, &color.r, &color.g, &color.b);
+            fast_hsv2rgb_8bit(hue, saturation, bri, &color.r, &color.g, &color.b);
             fill(color);
             Backlight::update();
 
-            bri += briStep;
-            if (bri > maxBrightness) {
-                bri = maxBrightness;
-                briStep = -1;
+            bri += stepLightness;
+            if (bri > lightnessMax) {
+                bri = lightnessMax;
+                stepLightness = -1;
                 nextFrameDelay(1000);
 //                hue += 20;
 //                if (hue > HSV_HUE_MAX) {
 //                    hue = HSV_HUE_MIN;
 //                }
 
-            } else if (bri < minBrightness) {
-                bri = minBrightness;
-                briStep = 1;
+            } else if (bri < lightnessMin) {
+                bri = lightnessMin;
+                stepLightness = 1;
                 nextFrameDelay(1000);
 //                hue += 20;
 //                if (hue > HSV_HUE_MAX) {
@@ -77,3 +72,54 @@ Scene *Standby::getInstance() {
     return (Scene *) &inst;
 }
 
+uint16_t Standby::getHue() const {
+    return hue;
+}
+
+uint16_t Standby::setHue(uint16_t newValue) {
+    if (newValue > HSV_HUE_MAX) {
+        newValue = HSV_HUE_MAX;
+    } else if (newValue < HSV_HUE_MIN) {
+        newValue = HSV_HUE_MIN;
+    }
+    return hue = newValue;
+}
+
+int Standby::getSaturation() const {
+    return saturation;
+}
+
+int Standby::setSaturation(int newValue) {
+    if (newValue > HSV_SAT_MAX) {
+        newValue = HSV_SAT_MAX;
+    } else if (newValue < HSV_SAT_MIN) {
+        newValue = HSV_SAT_MIN;
+    }
+    return saturation = newValue;
+}
+
+int Standby::getLightnessMin() const {
+    return lightnessMin;
+}
+
+int Standby::setLightnessMin(int newValue) {
+    if (newValue > lightnessMax) {
+        newValue = lightnessMax;
+    } else if (newValue < HSV_SAT_MIN) {
+        newValue = HSV_SAT_MIN;
+    }
+    return lightnessMin = newValue;
+}
+
+int Standby::getLightnessMax() const {
+    return lightnessMax;
+}
+
+int Standby::setLightnessMax(int newValue) {
+    if (newValue > BACKLIGHT_MAX_LIGHTNESS) {
+        newValue = BACKLIGHT_MAX_LIGHTNESS;
+    } else if (newValue < lightnessMin) {
+        newValue = lightnessMin;
+    }
+    return lightnessMax = newValue;
+}

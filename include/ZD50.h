@@ -21,6 +21,7 @@
 #include "Rotary.h"
 #include "Button.h"
 #include "Controller/Controller.h"
+#include "Settings.h"
 
 #define VOLUME_MAX_VALUE (MAX_ATTENUATION_LEVEL + 1)
 #define VOLUME_MIN_VALUE 0
