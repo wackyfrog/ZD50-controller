@@ -186,7 +186,7 @@ namespace Display {
         return row < 8 ? row << 1 : ((row - 8) << 1) | 0x01;
     }
 
-    void printBitmap(const uint8_t x, const uint8_t y, const uint64_t *image) {
+    void printBitmap(const char x, const char y, const uint64_t *image) {
         uint8_t row;
         uint64_t bitmap;
         memcpy_P(&bitmap, (uint64_t *) image, 8);
@@ -268,7 +268,7 @@ namespace Display {
         }
     }
 
-    void printVolume(const char volume) {
+    void print(const int volume) {
         clearBuffer();
 
         char buf[8] = {"\0"};

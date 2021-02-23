@@ -90,11 +90,11 @@ namespace Attenuator {
     }
 
     void sendInPowerSaveMode() {
-        uint8_t lastSentLevel;
-        uint8_t maskedLevel;
+//        uint8_t lastSentLevel;
+//        uint8_t maskedLevel;
         char bitCounter;
 
-        lastSentLevel = 0xFF;
+//        lastSentLevel = 0xFF;
 //        ZD50::Serial.println(F("SET_AND_OFF"));
         for (bitCounter = 5; bitCounter >= 0; bitCounter--) {
 //            maskedLevel = _level & (1 << bitCounter);

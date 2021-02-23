@@ -28,6 +28,7 @@ namespace ZD50 {
         Backlight::init();
         Display::init();
         Display::displayWelcome();
+        Settings::init();
         _delay_ms(200);
         Attenuator::init();
         Display::clear();
@@ -69,11 +70,87 @@ namespace ZD50 {
             volume = newVolume;
             Attenuator::setLevel(VOLUME_TO_ATTENUATION_LEVEL(volume), VOLUME_TO_MUTE_STATE(volume));
         }
-        Display::printVolume((uint8_t) volume);
+        Display::print((uint8_t) volume);
+    }
+
+    bool handleMenuButton() {
+        switch (Button::getState()) {
+            case Button::SHORT_PRESS:
+                Menu::select();
+                break;
+
+            case Button::MIDDLE_PRESS:
+                if (!Menu::leave()) {
+                    Menu::finish();
+                    controller->onMenuClose();
+                }
+                break;
+
+            case Button::LONG_PRESS:
+                Menu::finish();
+                controller->onMenuClose();
+                break;
+
+            default:
+                return false;
+        }
+        return true;
+    }
+
+    bool throttleMovementCommand(Controller::Command &command, int param) {
+        static int value = 0;
+        static unsigned long resetTime = 0;
+        unsigned long now = millis();
+        value = now > resetTime ? param : value + param;
+        resetTime = now + 200;
+        if (abs(value) > 2) {
+            value = 0;
+            return false;
+        }
+        return true;
+    }
+
+    bool handleMenuCommand(Controller::Command command, int param) {
+        if (!Menu::isActive()) {
+            return false;
+        }
+
+        switch (command) {
+            case Controller::Command::BUTTON_PRESS:
+                return handleMenuButton();
+
+            case Controller::Command::ROTATE:
+                if (!Menu::isEntered() && throttleMovementCommand(command, param)) {
+                    return true;
+                }
+                if (param > 0) {
+                    Menu::next();
+                } else if (param < 0) {
+                    Menu::previous();
+                }
+                return true;
+
+            default:
+                return false;
+        }
+
+        return true;
     }
 
     void command(Controller::Command command, Controller::CommandParam param) {
-        ZD50::getController()->command(command, param);
+        if (controller == nullptr) {
+            return;
+        }
+#ifdef ZD50_DEBUG_COMMANDS
+        SerialOut.print(F("CMD:"));
+        SerialOut.print(command);
+        SerialOut.print(F(":PARAM:"));
+        SerialOut.print(param);
+        SerialOut.println();
+#endif
+        if (!handleMenuCommand(command, param)) {
+            controller->command(command, param);
+        }
     }
 
     COROUTINE(controllerTick) {
@@ -106,4 +183,5 @@ namespace ZD50 {
 
         }
     }
+
 }

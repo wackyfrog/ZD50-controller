@@ -5,6 +5,27 @@
 #include "Controller/States.h"
 #include "Backlight/Scenes.h"
 #include "ZD50.h"
+#include "Display/Font.h"
+#include "Menu/Menu.h"
+
+
+MENU_ITEM(MenuBrightness, Menu::Brightness,
+          MENU_NULL, MenuHue, MENU_NULL, MENU_NULL,
+          StandbyState::onMenuSelect,
+          StandbyState::onMenuEnter,
+          StandbyState::settingLightnessMaxAdjust);
+
+MENU_ITEM(MenuHue, Menu::Hue,
+          MenuBrightness, MenuSaturation, MENU_NULL, MENU_NULL,
+          StandbyState::onMenuSelect,
+          StandbyState::onMenuEnter,
+          StandbyState::settingHueAdjust);
+
+MENU_ITEM(MenuSaturation, Menu::Saturation,
+          MenuHue, MENU_NULL, MENU_NULL, MENU_NULL,
+          StandbyState::onMenuSelect,
+          StandbyState::onMenuEnter,
+          StandbyState::settingSaturationAdjust);
 
 Controller *StandbyState::getInstance() {
     static StandbyState inst;
@@ -43,7 +64,10 @@ void StandbyState::command(Command command, CommandParam param) {
 
                 case Button::State::MIDDLE_PRESS:
                     ZD50::setController(SourcePowerOnState::getInstance());
-                    Backlight::Scene::stopInstantScene();
+                    break;
+
+                case Button::State::LONG_PRESS:
+                    select(&MenuBrightness);
                     break;
 
                 default:
@@ -61,3 +85,63 @@ void StandbyState::command(Command command, CommandParam param) {
     }
 }
 
+
+void StandbyState::onMenuClose() {
+    Display::blink(Display::NONE);
+    Serial.println(F("[MENU_CLOSE]"));
+    Display::clear();
+}
+
+void StandbyState::onMenuSelect(Menu::Id id) {
+    Serial.print(F("[MENU_SELECT:"));
+    Serial.print(id);
+    Serial.println(F("]"));
+    Display::blink(Display::NONE);
+    Display::clearBuffer();
+    switch (id) {
+        case Menu::Brightness:
+            Display::printBitmap(4, 0, &Font::IMG_BRIGHTNESS);
+            break;
+
+        case Menu::Hue:
+            Display::printBitmap(4, 0, &Font::IMG_HUE);
+            break;
+
+        case Menu::Saturation:
+            Display::printBitmap(4, 0, &Font::IMG_SATURATION);
+            break;
+
+        default:
+            break;
+    }
+
+    Display::flushBuffer();
+}
+
+void StandbyState::onMenuEnter(Menu::Id id) {
+    Serial.print(F("[MENU_ENTER:"));
+    Serial.print(id);
+    Serial.println(F("]"));
+    Display::blink(Display::FAST);
+}
+
+void StandbyState::settingLightnessMaxAdjust(Menu::Id id, int value) {
+    BacklightScene::Standby *pStandby = (BacklightScene::Standby *) BacklightScene::Standby::getInstance();
+    Display::print(
+            (pStandby->setLightnessMax(pStandby->getLightnessMax() + value * 10)) / (HSV_VAL_MAX / 100)
+    );
+}
+
+void StandbyState::settingHueAdjust(Menu::Id id, int value) {
+    BacklightScene::Standby *pStandby = (BacklightScene::Standby *) BacklightScene::Standby::getInstance();
+    Display::print(
+            (pStandby->setHue(pStandby->getHue() + value * 10)) / (HSV_HUE_MAX / 100)
+    );
+}
+
+void StandbyState::settingSaturationAdjust(Menu::Id id, int value) {
+    BacklightScene::Standby *pStandby = (BacklightScene::Standby *) BacklightScene::Standby::getInstance();
+    Display::print(
+            (pStandby->setSaturation(pStandby->getSaturation() + value * 10)) / (HSV_SAT_MAX / 100)
+    );
+}
