@@ -8,7 +8,6 @@
 #include "Display/Font.h"
 #include "Menu/Menu.h"
 
-
 MENU_ITEM(MenuBrightness, Menu::Brightness,
           MENU_NULL, MenuHue, MENU_NULL, MENU_NULL,
           StandbyState::onMenuSelect,
@@ -67,7 +66,7 @@ void StandbyState::command(Command command, CommandParam param) {
                     break;
 
                 case Button::State::LONG_PRESS:
-                    select(&MenuBrightness);
+                    Menu::select(&MenuBrightness);
                     break;
 
                 default:
@@ -90,6 +89,7 @@ void StandbyState::onMenuClose() {
     Display::blink(Display::NONE);
     Serial.println(F("[MENU_CLOSE]"));
     Display::clear();
+    Backlight::Scene::getInstance()->setNormalMode();
 }
 
 void StandbyState::onMenuSelect(Menu::Id id) {
@@ -98,6 +98,8 @@ void StandbyState::onMenuSelect(Menu::Id id) {
     Serial.println(F("]"));
     Display::blink(Display::NONE);
     Display::clearBuffer();
+    Backlight::Scene::stopInstantScene();
+    Backlight::Scene::getInstance()->setPreviewMode();
     switch (id) {
         case Menu::Brightness:
             Display::printBitmap(4, 0, &Font::IMG_BRIGHTNESS);
@@ -123,25 +125,30 @@ void StandbyState::onMenuEnter(Menu::Id id) {
     Serial.print(id);
     Serial.println(F("]"));
     Display::blink(Display::FAST);
+
+    Backlight::Scene::stopInstantScene();
+    Backlight::Scene::getInstance()->setPreviewMode();
 }
 
 void StandbyState::settingLightnessMaxAdjust(Menu::Id id, int value) {
     BacklightScene::Standby *pStandby = (BacklightScene::Standby *) BacklightScene::Standby::getInstance();
     Display::print(
-            (pStandby->setLightnessMax(pStandby->getLightnessMax() + value * 10)) / (HSV_VAL_MAX / 100)
+            100 * (pStandby->setLightnessMax(pStandby->getLightnessMax() + value * 10)) / BACKLIGHT_MAX_LIGHTNESS
     );
 }
 
 void StandbyState::settingHueAdjust(Menu::Id id, int value) {
     BacklightScene::Standby *pStandby = (BacklightScene::Standby *) BacklightScene::Standby::getInstance();
     Display::print(
-            (pStandby->setHue(pStandby->getHue() + value * 10)) / (HSV_HUE_MAX / 100)
+            360 * ((long) pStandby->setHue(pStandby->getHue() + ((long) value) * 4)) / HSV_HUE_MAX
     );
 }
 
 void StandbyState::settingSaturationAdjust(Menu::Id id, int value) {
     BacklightScene::Standby *pStandby = (BacklightScene::Standby *) BacklightScene::Standby::getInstance();
     Display::print(
-            (pStandby->setSaturation(pStandby->getSaturation() + value * 10)) / (HSV_SAT_MAX / 100)
+            100 * (
+                    pStandby->setSaturation(pStandby->getSaturation() + value * 10)
+            ) / HSV_SAT_MAX
     );
 }

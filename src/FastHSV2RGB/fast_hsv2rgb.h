@@ -33,6 +33,7 @@
 #include <stdint.h>
 
 #define HSV_HUE_SEXTANT		256
+//#define HSV_HUE_SEXTANT		60
 #define HSV_HUE_STEPS		(6 * HSV_HUE_SEXTANT)
 
 #define HSV_HUE_MIN		0

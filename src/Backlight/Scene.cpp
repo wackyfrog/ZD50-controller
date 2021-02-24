@@ -54,6 +54,10 @@ void Scene::reset() {
     begin();
 }
 
+Scene *Scene::getInstance() {
+    return scene;
+}
+
 COROUTINE(scenePerformer) {
     COROUTINE_LOOP() {
         static bool resetScene = false;
@@ -66,12 +70,16 @@ COROUTINE(scenePerformer) {
 
         } else if (scene != nullptr && !scene->isFinished) {
             now = millis();
-            if (resetScene) {
-                scene->reset();
-                resetScene = false;
-            }
-            if (scene->isReady()) {
-                scene->frame();
+            if (scene->isPreviewMode()) {
+                scene->preview();
+            } else {
+                if (resetScene) {
+                    scene->reset();
+                    resetScene = false;
+                }
+                if (scene->isReady()) {
+                    scene->frame();
+                }
             }
 
         } else {

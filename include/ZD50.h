@@ -13,6 +13,8 @@
 #include "SerialOut.h"
 #endif
 
+#define DEBUG_MENU
+
 #include "PowerControl.h"
 #include "Backlight.h"
 #include "Attenuator.h"

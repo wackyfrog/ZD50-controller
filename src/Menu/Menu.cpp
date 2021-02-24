@@ -45,6 +45,9 @@ namespace Menu {
     }
 
     bool leave() {
+#ifdef DEBUG_MENU
+        Serial.println(F("[menu:leave]"));
+#endif
         if (isEntered()) {
             entered = &MENU_NULL;
             return select(selected);
@@ -59,7 +62,16 @@ namespace Menu {
         selected = newMenu;
         SelectCallback *callback = (SelectCallback *) pgm_read_word(&selected->onSelect);
 
+#ifdef DEBUG_MENU
+        Serial.print(F("[menu:select] id:"));
+        Serial.println(static_cast<Id>(pgm_read_byte(&selected->id)));
+#endif
+
         if (callback) {
+#ifdef DEBUG_MENU
+            Serial.println(F("[menu:select:callback]"));
+#endif
+
             callback(static_cast<Id>(pgm_read_byte(&selected->id)));
         }
         return true;
@@ -78,6 +90,9 @@ namespace Menu {
         EnterCallback *callback = (EnterCallback *) pgm_read_word(&selected->onEnter);
 
         if (callback) {
+#ifdef DEBUG_MENU
+            Serial.println(F("[menu:enter:callback]"));
+#endif
             entered = selected;
             callback(static_cast<Id>(pgm_read_byte(&selected->id)));
         }

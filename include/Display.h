@@ -23,6 +23,8 @@ namespace Display {
 
     void print(char *text);
 
+    void print(const int volume);
+
     void clearBuffer();
 
     void setBrightness(uint8_t level); // level 0-16, 0 means display off
@@ -44,8 +46,6 @@ namespace Display {
     void send(uint8_t val);
 
     uint8_t getRamAdr(uint8_t row);
-
-    void print(const int volume);
 
     void printBitmap(const char x, const char y, const uint64_t *image);
 

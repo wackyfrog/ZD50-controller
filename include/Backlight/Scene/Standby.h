@@ -24,9 +24,9 @@ namespace BacklightScene {
         static Scene *getInstance();
 
 
-        uint16_t getHue() const;
+        int getHue() const;
 
-        uint16_t setHue(uint16_t newValue);
+        int setHue(int newValue);
 
         int getSaturation() const;
 
@@ -39,6 +39,8 @@ namespace BacklightScene {
         int getLightnessMax() const;
 
         int setLightnessMax(int newValue);
+
+        void preview();
     };
 }
 

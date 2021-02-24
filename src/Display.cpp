@@ -278,7 +278,6 @@ namespace Display {
         } else {
             itoa(volume, buf, 10);
         }
-//        buf[strlen(buf)] = (char) 59;
         print(buf);
         flushBuffer();
     }

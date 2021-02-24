@@ -24,7 +24,7 @@ void Pulse::frame() {
     switch (state) {
         case 0:
             bri = 50;
-            briStep = -1;
+            briStep = -5;
             state++;
             break;
 

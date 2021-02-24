@@ -42,9 +42,25 @@ namespace Backlight {
 
         void reset();
 
+        virtual void preview() {};
+
+        void setPreviewMode() {
+            previewMode = true;
+            preview();
+        }
+
+        void setNormalMode() {
+            previewMode = false;
+            begin();
+        }
+
+        bool isPreviewMode() {
+            return previewMode;
+        }
+
     private:
         Millis waitUntil;
-
+        bool previewMode = false;
     };
 }
 

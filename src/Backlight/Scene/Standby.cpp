@@ -46,25 +46,26 @@ void Standby::frame() {
                 bri = lightnessMax;
                 stepLightness = -1;
                 nextFrameDelay(1000);
-//                hue += 20;
-//                if (hue > HSV_HUE_MAX) {
-//                    hue = HSV_HUE_MIN;
-//                }
 
             } else if (bri < lightnessMin) {
                 bri = lightnessMin;
                 stepLightness = 1;
                 nextFrameDelay(1000);
-//                hue += 20;
-//                if (hue > HSV_HUE_MAX) {
-//                    hue = HSV_HUE_MIN;
-//                }
 
             } else {
                 nextFrameDelay(30);
             }
             break;
+
     }
+}
+
+void Standby::preview() {
+    fast_hsv2rgb_8bit(hue, saturation, lightnessMax, &color.r, &color.g, &color.b);
+    fill(color);
+    update();
+
+    nextFrameDelay(50);
 }
 
 Scene *Standby::getInstance() {
@@ -72,15 +73,15 @@ Scene *Standby::getInstance() {
     return (Scene *) &inst;
 }
 
-uint16_t Standby::getHue() const {
+int Standby::getHue() const {
     return hue;
 }
 
-uint16_t Standby::setHue(uint16_t newValue) {
+int Standby::setHue(int newValue) {
     if (newValue > HSV_HUE_MAX) {
-        newValue = HSV_HUE_MAX;
-    } else if (newValue < HSV_HUE_MIN) {
         newValue = HSV_HUE_MIN;
+    } else if (newValue < HSV_HUE_MIN) {
+        newValue = HSV_HUE_MAX;
     }
     return hue = newValue;
 }
@@ -123,3 +124,4 @@ int Standby::setLightnessMax(int newValue) {
     }
     return lightnessMax = newValue;
 }
+
