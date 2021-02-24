@@ -138,16 +138,16 @@ namespace ZD50 {
     }
 
     void command(Controller::Command command, Controller::CommandParam param) {
-        if (controller == nullptr) {
-            return;
-        }
 #ifdef ZD50_DEBUG_COMMANDS
         SerialOut.print(F("CMD:"));
         SerialOut.print(command);
-        SerialOut.print(F(":PARAM:"));
+        SerialOut.print(F(" param: "));
         SerialOut.print(param);
         SerialOut.println();
 #endif
+        if (controller == nullptr) {
+            return;
+        }
         if (!handleMenuCommand(command, param)) {
             controller->command(command, param);
         }

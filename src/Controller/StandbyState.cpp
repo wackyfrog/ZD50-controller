@@ -87,15 +87,20 @@ void StandbyState::command(Command command, CommandParam param) {
 
 void StandbyState::onMenuClose() {
     Display::blink(Display::NONE);
+#ifdef ZD50_DEBUG_MENU
     Serial.println(F("[MENU_CLOSE]"));
+#endif
+
     Display::clear();
     Backlight::Scene::getInstance()->setNormalMode();
 }
 
 void StandbyState::onMenuSelect(Menu::Id id) {
+#ifdef ZD50_DEBUG_MENU
     Serial.print(F("[MENU_SELECT:"));
     Serial.print(id);
     Serial.println(F("]"));
+#endif
     Display::blink(Display::NONE);
     Display::clearBuffer();
     Backlight::Scene::stopInstantScene();
@@ -121,9 +126,11 @@ void StandbyState::onMenuSelect(Menu::Id id) {
 }
 
 void StandbyState::onMenuEnter(Menu::Id id) {
+#ifdef ZD50_DEBUG_MENU
     Serial.print(F("[MENU_ENTER:"));
     Serial.print(id);
     Serial.println(F("]"));
+#endif
     Display::blink(Display::FAST);
 
     Backlight::Scene::stopInstantScene();
@@ -133,7 +140,7 @@ void StandbyState::onMenuEnter(Menu::Id id) {
 void StandbyState::settingLightnessMaxAdjust(Menu::Id id, int value) {
     BacklightScene::Standby *pStandby = (BacklightScene::Standby *) BacklightScene::Standby::getInstance();
     Display::print(
-            100 * (pStandby->setLightnessMax(pStandby->getLightnessMax() + value * 10)) / BACKLIGHT_MAX_LIGHTNESS
+            pStandby->setLightnessMax(pStandby->getLightnessMax() + value)
     );
 }
 

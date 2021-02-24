@@ -10,7 +10,8 @@
 namespace Menu {
     typedef enum : uint8_t {
         Exit = 0,
-        Brightness, Hue, Saturation
+        Brightness, Hue, Saturation,
+        IR,
     } Id;
 
     typedef void(SelectCallback)(Id id);

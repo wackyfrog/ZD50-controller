@@ -14,6 +14,7 @@ namespace Font {
     FontBitmap IMG_BRIGHTNESS = {0x185a3ce7e73c5a18};
     FontBitmap IMG_SATURATION = {0x3c72f9e5e5f9723c};
     FontBitmap IMG_HUE = {0x3c428199b9f1623c};
+    FontBitmap IMG_IR = {0x070f07aaa0984038};
 }
 
 /*

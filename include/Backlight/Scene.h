@@ -13,8 +13,6 @@ namespace Backlight {
     class Scene {
 
     public:
-        bool isFinished = false;
-
         typedef unsigned long Millis;
 
         virtual void begin() {};
@@ -26,7 +24,7 @@ namespace Backlight {
         void nextFrameDelay(Millis newDelay);
 
         void done() {
-            isFinished = true;
+            finished = true;
         }
 
 
@@ -58,9 +56,12 @@ namespace Backlight {
             return previewMode;
         }
 
+        bool isFinished() const;
+
     private:
         Millis waitUntil;
         bool previewMode = false;
+        bool finished = false;
     };
 }
 

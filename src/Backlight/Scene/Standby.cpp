@@ -64,8 +64,6 @@ void Standby::preview() {
     fast_hsv2rgb_8bit(hue, saturation, lightnessMax, &color.r, &color.g, &color.b);
     fill(color);
     update();
-
-    nextFrameDelay(50);
 }
 
 Scene *Standby::getInstance() {
