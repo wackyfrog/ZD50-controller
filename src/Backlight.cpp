@@ -68,11 +68,7 @@ namespace Backlight {
     }
 
     void update() {
-#ifdef __AVR_ATmega324PA__
         ws2812_send(leds, BACKLIGHT_BUF_SIZE, BACKLIGHT_PIN_MASK, &BACKLIGHT_PORT);
-#else
-#error Backlight hardware is not configured
-#endif
     }
 
 }

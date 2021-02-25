@@ -9,10 +9,6 @@
 #include <Arduino.h>
 #include <AceRoutine.h>
 
-#ifndef ZD50_SERIAL_HARDWARE
-#include "SerialOut.h"
-#endif
-
 #include "PowerControl.h"
 #include "Backlight.h"
 #include "Attenuator.h"
@@ -49,12 +45,7 @@ namespace ZD50 {
 
     namespace Luminance = Luminance;
 
-#ifdef ZD50_SERIAL_HARDWARE
-    extern HardwareSerial &SerialOut;
-#else
-    extern TinySerialOut &SerialOut;
-#endif
-
+    extern SERIAL_OUT_T &SerialOut;
 };
 
 #endif //ZD50_H

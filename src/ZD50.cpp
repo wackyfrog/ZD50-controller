@@ -3,15 +3,10 @@
 //
 
 #include "ZD50.h"
-#include "Controller/StandbyState.h"
+#include "Controller/States.h"
 
 namespace ZD50 {
-#ifdef ZD50_SERIAL_HARDWARE
-    HardwareSerial &SerialOut = Serial;
-#else
-    TinySerialOut &SerialOut = SerialOut;
-#endif
-
+    SERIAL_OUT_T &SerialOut = SERIAL_OUT_REF;
 
     Controller *controller;
 
