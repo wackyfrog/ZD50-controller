@@ -21,12 +21,19 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
+
+/*
+ * https://www.vagrearg.org/content/hsvrgb
+ */
+
+
 #ifndef __HSV_FAST_HSV2RGB_H__
 #define __HSV_FAST_HSV2RGB_H__
 
 #include <stdint.h>
 
 #define HSV_HUE_SEXTANT		256
+//#define HSV_HUE_SEXTANT		60
 #define HSV_HUE_STEPS		(6 * HSV_HUE_SEXTANT)
 
 #define HSV_HUE_MIN		0

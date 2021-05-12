@@ -13,6 +13,17 @@
 #define BACKLIGHT_LED_COUNT 12
 #define BACKLIGHT_BUF_SIZE (3 * BACKLIGHT_LED_COUNT)
 
+#define HSV_HUE_DEGREE(x) ( x > 359 ? HSV_HUE_MAX : (((uint32_t)x * (uint32_t)HSV_HUE_MAX) / 360) )
+#define HSV_VAL_PERCENT(x) ( (uint8_t) ( (uint16_t)x * (uint16_t)BACKLIGHT_MAX_LIGHTNESS / 100) )
+#define HSV_SAT_PERCENT(x) ( (uint8_t) ( (uint16_t)x * (uint16_t)HSV_SAT_MAX / 100 ) )
+
+#define LED_INDEX(i) (i < 10 ? i + 2 : i - 10)
+#define HSV8_TO_CRGB(hue, sat, val, crgb) \
+    (fast_hsv2rgb_8bit(                   \
+    HSV_HUE_DEGREE(hue), HSV_SAT_PERCENT(sat), HSV_VAL_PERCENT(val), \
+    crgb.r, crgb.g, crgb.b))
+
+
 namespace Backlight {
 
     struct cRGB {

@@ -23,8 +23,8 @@ void Pulse::begin() {
 void Pulse::frame() {
     switch (state) {
         case 0:
-            bri = 10;
-            briStep = -1;
+            bri = 50;
+            briStep = -5;
             state++;
             break;
 
@@ -46,7 +46,7 @@ void Pulse::frame() {
                 break;
             }
 
-            nextFrameDelay(10);
+            nextFrameDelay(5);
             break;
 
         case 2:

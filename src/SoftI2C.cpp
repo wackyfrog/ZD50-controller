@@ -1,17 +1,7 @@
 #include <avr/io.h>
+#include "Config.h"
 #include "SoftI2C.h"
 #include <util/delay.h>
-
-#define I2C_PORT  PORTA
-#define I2C_DDR   DDRA
-#define SCK   _BV(1)
-#define SDA   _BV(0)
-
-#define I2C_SDA_LO    I2C_DDR |= SDA
-#define I2C_SCK_LO    I2C_DDR |= SCK
-#define I2C_SDA_HI    I2C_DDR &= ~(SDA)
-#define I2C_SCK_HI    I2C_DDR &= ~(SCK)
-#define I2C_WAIT      _delay_us(4)
 
 void i2c_start(void) {
     I2C_SCK_HI;

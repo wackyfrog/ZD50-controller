@@ -13,8 +13,6 @@ namespace Backlight {
     class Scene {
 
     public:
-        bool isFinished = false;
-
         typedef unsigned long Millis;
 
         virtual void begin() {};
@@ -26,15 +24,14 @@ namespace Backlight {
         void nextFrameDelay(Millis newDelay);
 
         void done() {
-            isFinished = true;
+            finished = true;
         }
 
-
-        static void startInstantScene(Scene *newScene);
+        static void startInstantScene(Scene *newScene, uint32_t limitDuration = 0);
 
         static void stopInstantScene();
 
-        static void startScene(Scene *newScene);
+        static void startScene(Scene *newScene, uint32_t limitDuration = 0);
 
         static Scene *getInstance();
 
@@ -42,9 +39,31 @@ namespace Backlight {
 
         void reset();
 
+        virtual void preview() {};
+
+        void setPreviewMode() {
+            previewMode = true;
+            preview();
+        }
+
+        void setNormalMode() {
+            previewMode = false;
+            begin();
+        }
+
+        bool isPreviewMode() {
+            return previewMode;
+        }
+
+        bool isFinished();
+
+        uint32_t getFinishTime() const;
+
     private:
         Millis waitUntil;
-
+        bool previewMode = false;
+        bool finished = false;
+        uint32_t finishAt = 0;
     };
 }
 

@@ -7,7 +7,7 @@
  * Using PB2 // (Pin7 on Tiny85) as default TX pin to be compatible with digispark board
  * To change the output pin, modify the line "#define DEBUG_TX_PORT_PIN ..." in TinySerialOut.h or or set it as compiler symbol like "-DTX_PIN PB1".
  *
- * Using the Serial.print commands needs 4 bytes extra for each call.
+ * Using the ZD50::SerialOut.print commands needs 4 bytes extra for each call.
  *
  *
  *  Copyright (C) 2015-2020  Armin Joachimsmeyer
@@ -30,8 +30,6 @@
  *
  */
 
-#if defined(__AVR_ATmega324PA__)
-
 #include "SerialOut.h"
 #include <avr/eeprom.h>     // for eeprom_read_byte() in writeString_E()
 #include <avr/io.h>
@@ -42,16 +40,6 @@
 
 #ifndef _NOP
 #define _NOP()  __asm__ volatile ("nop")
-#endif
-
-#ifdef __AVR_ATmega324PA__
-#define SERIAL_OUT_TX_PORT PORTB
-#define SERIAL_OUT_TX_PORT_PIN 3
-// PORTB address
-#define SERIAL_OUT_TX_PORT_ADDR 0x05
-#define SERIAL_OUT_TX_DDR DDRB
-#else
-#error
 #endif
 
 void write1Start8Data1StopNoParity(uint8_t aValue);
@@ -90,9 +78,9 @@ void writeString(const char *aStringPtr) {
 #ifndef USE_ALWAYS_CLI_SEI_GUARD_FOR_OUTPUT
     if (sUseCliSeiForWrite) {
 #endif
-        while (*aStringPtr != 0) {
-            write1Start8Data1StopNoParityWithCliSei(*aStringPtr++);
-        }
+    while (*aStringPtr != 0) {
+        write1Start8Data1StopNoParityWithCliSei(*aStringPtr++);
+    }
 #ifndef USE_ALWAYS_CLI_SEI_GUARD_FOR_OUTPUT
     } else {
         while (*aStringPtr != 0) {
@@ -183,9 +171,9 @@ void writeStringSkipLeadingSpaces(const char *aStringPtr) {
 #ifndef USE_ALWAYS_CLI_SEI_GUARD_FOR_OUTPUT
     if (sUseCliSeiForWrite) {
 #endif
-        while (*aStringPtr != 0) {
-            write1Start8Data1StopNoParityWithCliSei(*aStringPtr++);
-        }
+    while (*aStringPtr != 0) {
+        write1Start8Data1StopNoParityWithCliSei(*aStringPtr++);
+    }
 #ifndef USE_ALWAYS_CLI_SEI_GUARD_FOR_OUTPUT
     } else {
         while (*aStringPtr != 0) {
@@ -469,7 +457,7 @@ inline void delay4CyclesInlineExact(uint16_t a4Microseconds) {
     );
 }
 
-#if (F_CPU == 1000000) && defined(SERIAL_DEBUG_BAUD_38400) //else smaller code, but only 38400 baud at 1 MHz
+#if (F_CPU == 1000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_38400) //else smaller code, but only 38400 baud at 1 MHz
 /*
  * 115200 baud - 8,680 cycles per bit, 86,8 per byte at 1 MHz
  *
@@ -648,22 +636,22 @@ void write1Start8Data1StopNoParity(uint8_t aValue) {
     asm volatile
     (
     "cbi  %[txport] , %[txpin]" "\n\t" // 2    PORTB &= ~(1 << DEBUG_TX_PORT_PIN);
-    #if (F_CPU == 1000000) && defined(SERIAL_DEBUG_BAUD_38400) // 1 MHz 38400 baud
+    #if (F_CPU == 1000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_38400) // 1 MHz 38400 baud
     // 0 cycles padding to get additional 4 cycles
             //delay4CyclesInlineExact(5); -> 20 cycles
             "ldi  r30 , 0x05" "\n\t"// 1
-    #elif ((F_CPU == 8000000) && defined(SERIAL_DEBUG_BAUD_115200)) || ((F_CPU == 16000000) && defined(SERIAL_DEBUG_BAUD_230400)) // 8 MHz 115200 baud OR 16 MHz 230400 baud
+    #elif ((F_CPU == 8000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_115200)) || ((F_CPU == 16000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_230400)) // 8 MHz 115200 baud OR 16 MHz 230400 baud
     // 3 cycles padding to get additional 7 cycles
     "nop" "\n\t"// 1    _nop"();
     "nop" "\n\t"// 1    _nop"();
     "nop" "\n\t"// 1    _nop"();
     //delay4CyclesInlineExact(15); -> 61 cycles
     "ldi  r30 , 0x0F" "\n\t"// 1
-    #elif (F_CPU == 8000000) && defined(SERIAL_DEBUG_BAUD_230400) // 8 MHz 230400 baud
+    #elif (F_CPU == 8000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_230400) // 8 MHz 230400 baud
     // 0 cycles padding to get additional 4 cycles
     //delay4CyclesInlineExact(7); -> 29 cycles
     "ldi  r30 , 0x07" "\n\t"// 1
-    #elif (F_CPU == 16000000) && defined(SERIAL_DEBUG_BAUD_115200) // 16 MHz 115200 baud
+    #elif (F_CPU == 16000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_115200) // 16 MHz 115200 baud
     // 0 cycles padding to get additional 4 cycles
             //delay4CyclesInlineExact(33); -> 133 cycles
             "ldi  r30 , 0x21" "\n\t"// 1
@@ -690,25 +678,25 @@ void write1Start8Data1StopNoParity(uint8_t aValue) {
     "nop" "\n\t"// 1
     "lsr %[value]" "\n\t"// 1    aValue = aValue >> 1;
 
-    #if (F_CPU == 1000000) && defined(SERIAL_DEBUG_BAUD_38400) // 1 MHz 38400 baud
+    #if (F_CPU == 1000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_38400) // 1 MHz 38400 baud
     // 3 cycles padding to get additional 11 cycles
             "nop" "\n\t"// 1
             "nop" "\n\t"// 1
             "nop" "\n\t"// 1
             // delay4CyclesInlineExact(3); -> 13 cycles
             "ldi  r30 , 0x03" "\n\t"// 1
-    #elif ((F_CPU == 8000000) && defined(SERIAL_DEBUG_BAUD_115200)) || ((F_CPU == 16000000) && defined(SERIAL_DEBUG_BAUD_230400)) // 8 MHz 115200 baud OR 16 MHz 230400 baud
+    #elif ((F_CPU == 8000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_115200)) || ((F_CPU == 16000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_230400)) // 8 MHz 115200 baud OR 16 MHz 230400 baud
     // 3 cycles padding to get additional 11 cycles
     "nop" "\n\t"// 1
     "nop" "\n\t"// 1
     "nop" "\n\t"// 1
     // delay4CyclesInlineExact(14); -> 57 cycles
     "ldi r30 , 0x0E" "\n\t"// 1
-    #elif (F_CPU == 8000000) && defined(SERIAL_DEBUG_BAUD_230400) // 8 MHz 230400 baud
+    #elif (F_CPU == 8000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_230400) // 8 MHz 230400 baud
     // 0 cycles padding to get additional 8 cycles
     // delay4CyclesInlineExact(6); -> 25 cycles
     "ldi r30 , 0x05" "\n\t"// 1
-    #elif (F_CPU == 16000000) && defined(SERIAL_DEBUG_BAUD_115200) // 16 MHz 115200 baud
+    #elif (F_CPU == 16000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_115200) // 16 MHz 115200 baud
     // 0 cycles padding to get additional 8 cycles
             //delay4CyclesInlineExact(32); -> 129 cycles
             "ldi  r30 , 0x20" "\n\t"// 1
@@ -730,16 +718,16 @@ void write1Start8Data1StopNoParity(uint8_t aValue) {
     // Stop bit
     "sbi %[txport] , %[txpin]" "\n\t"// 2    PORTB |= 1 << DEBUG_TX_PORT_PIN;
 
-    #if (F_CPU == 1000000) && defined(SERIAL_DEBUG_BAUD_38400) // 1 MHz 38400 baud
+    #if (F_CPU == 1000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_38400) // 1 MHz 38400 baud
     // delay4CyclesInlineExact(4); -> 17 cycles - gives minimum 25 cycles for stop bit
             "ldi  r30 , 0x04" "\n\t"// 1
-    #elif ((F_CPU == 8000000) && defined(SERIAL_DEBUG_BAUD_115200)) || ((F_CPU == 16000000) && defined(SERIAL_DEBUG_BAUD_230400)) // 8 MHz 115200 baud OR 16 MHz 230400 baud
+    #elif ((F_CPU == 8000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_115200)) || ((F_CPU == 16000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_230400)) // 8 MHz 115200 baud OR 16 MHz 230400 baud
     // delay4CyclesInlineExact(15) -> 61 cycles - gives minimum 69 cycles for stop bit
     "ldi r30 , 0x0F" "\n\t"// 1
-    #elif (F_CPU == 8000000) && defined(SERIAL_DEBUG_BAUD_230400) // 8 MHz 230400 baud
+    #elif (F_CPU == 8000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_230400) // 8 MHz 230400 baud
     // delay4CyclesInlineExact(5) -> 27 cycles - gives minimum 35 cycles for stop bit
     "ldi r30 , 0x05" "\n\t"// 1
-    #elif (F_CPU == 16000000) && defined(SERIAL_DEBUG_BAUD_115200) // 16 MHz 115200 baud
+    #elif (F_CPU == 16000000) && (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_115200) // 16 MHz 115200 baud
     // delay4CyclesInlineExact(32) -> 129 cycles - gives minimum 137 cycles for stop bit
             "ldi r30 , 0x20" "\n\t"// 1
     #endif
@@ -753,7 +741,6 @@ void write1Start8Data1StopNoParity(uint8_t aValue) {
     :
     [value] "r"(aValue),
     [txport] "I"(SERIAL_OUT_TX_PORT_ADDR),
-//    [txport] "I"((PORTB)), /* 0x18 is PORTB on Attiny 85 */
     [txpin] "I"(SERIAL_OUT_TX_PORT_PIN)
     :
     "r25",
@@ -816,6 +803,3 @@ void write1Start8Data1StopNoParity_C_Version(uint8_t aValue) {
     delay4CyclesInlineExact(4); // gives minimum 25 cycles for stop bit :-)
 }
 
-#endif
-
-TinySerialOut SerialOut;

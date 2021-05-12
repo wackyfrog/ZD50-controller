@@ -14,7 +14,7 @@ namespace Backlight {
 
     void init() {
         DDRD |= BACKLIGHT_PIN_MASK;
-        fill((cRGB) {0, 5, 0});
+        fill((cRGB) {0, 30, 0});
     }
 
     cRGB getPixel(uint8_t index) {
@@ -68,11 +68,7 @@ namespace Backlight {
     }
 
     void update() {
-#ifdef __AVR_ATmega324PA__
         ws2812_send(leds, BACKLIGHT_BUF_SIZE, BACKLIGHT_PIN_MASK, &BACKLIGHT_PORT);
-#else
-#error Backlight hardware is not configured
-#endif
     }
 
 }

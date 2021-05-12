@@ -12,12 +12,12 @@ Controller *SourcePowerOnState::getInstance() {
 }
 
 void SourcePowerOnState::begin(Controller *previousController, int param) {
-#ifdef ZD50_DEBUG_SERIAL
+#if ZD50_DEBUG_SERIAL
     ZD50::SerialOut.println(F("[ZD50:SRC_ON:START]"));
 #endif
 
     POWER_ON_SOURCE_ONLY();
-    ZD50::Display::displayHeadphones();
+    ZD50::Display::setMode(Display::HEADPHONES);
     Backlight::Scene::startScene(BacklightScene::SourcePowerOn::getInstance());
     Backlight::Scene::stopInstantScene();
 }

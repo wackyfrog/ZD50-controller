@@ -1,30 +1,23 @@
 #include "ZD50.h"
 
 using namespace ace_routine;
-
+#if defined(LED_BUILTIN) && (LED_BUILTIN != 0)
 COROUTINE(heartbeat) {
     COROUTINE_LOOP() {
-        LED_ON();
-        COROUTINE_DELAY(50);
-        LED_OFF();
-        COROUTINE_DELAY(1000);
-    }
-}
-
-#if 0
-COROUTINE(serialPing) {
-    static uint32_t t = 0;
-    COROUTINE_LOOP() {
-        SerialOut.print(F("... ping "));
-        SerialOut.println(++t, (uint8_t) 10);
-        COROUTINE_DELAY_SECONDS(2);
+        digitalWrite(LED_BUILTIN, HIGH);
+        COROUTINE_DELAY(100);
+        digitalWrite(LED_BUILTIN, LOW);
+        COROUTINE_DELAY(500);
     }
 }
 #endif
 
 void setup(void) {
-    LED_ENABLE();
-    LED_ON();
+#if defined(LED_BUILTIN) && (LED_BUILTIN != 0)
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
+#endif
+
     ZD50::init();
     CoroutineScheduler::setup();
 }

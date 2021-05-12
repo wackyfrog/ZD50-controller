@@ -6,12 +6,13 @@
 #define ZD50_H
 
 #include "Config.h"
-#include <Arduino.h>
-#include <AceRoutine.h>
 
-#ifndef ZD50_SERIAL_HARDWARE
+#if ZD50_DEBUG_SERIAL
 #include "SerialOut.h"
 #endif
+
+#include <Arduino.h>
+#include <AceRoutine.h>
 
 #include "PowerControl.h"
 #include "Backlight.h"
@@ -21,10 +22,14 @@
 #include "Rotary.h"
 #include "Button.h"
 #include "Controller/Controller.h"
+#include "Settings.h"
+#include "IR.h"
 
 #define VOLUME_MAX_VALUE (MAX_ATTENUATION_LEVEL + 1)
 #define VOLUME_MIN_VALUE 0
-#define VOLUME_START_VALUE 0
+#define VOLUME_START_VALUE 10
+
+#define CONTROLLER_TICK_MS 10
 
 namespace ZD50 {
     void init();
@@ -48,12 +53,9 @@ namespace ZD50 {
 
     namespace Luminance = Luminance;
 
-#ifdef ZD50_SERIAL_HARDWARE
-    extern HardwareSerial &SerialOut;
-#else
-    extern TinySerialOut &SerialOut;
+#if ZD50_DEBUG_SERIAL
+    extern TinySerialOut SerialOut;
 #endif
-
 };
 
 #endif //ZD50_H

@@ -4,34 +4,69 @@
 
 #ifndef ZD50_CONFIG_H
 #define ZD50_CONFIG_H
+
+#include <Arduino.h>
 #include <avr/io.h>
 
-
-#ifdef ARDUINO_AVR_UNO
-#endif
-
-#ifdef __AVR_ATmega324PA__
-#define LED_PIN PINB2
-
 /* EXPANSION IO */
+#define ZD50_GPIO_PORT PORTB
+#define ZD50_GPIO_DDR DDRB
 #define ZD50_GPIO1 3
 #define ZD50_GPIO2 4
 
-/* SERIAL DEBUG PORT */
-#define ZD50_SERIAL_HARDWARE
-#define ZD50_DEBUG_SERIAL
-#define SERIAL_DEBUG_BAUD_230400
-//#define SERIAL_DEBUG_BAUD_115200
-//#define SERIAL_DEBUG_BAUD_38400
-#define DEBUG_PIN_TX ZD50_GPIO1
-#define DEBUG_PIN_RX ZD50_GPIO2
+/* SERIAL OUT DEBUG PORT */
+#define SERIAL_OUT_TX_PORT ZD50_GPIO_PORT
+#define SERIAL_OUT_TX_PORT_PIN ZD50_GPIO2
+#define SERIAL_OUT_TX_PORT_ADDR 0x05
+#define SERIAL_OUT_TX_DDR ZD50_GPIO_DDR
+
+#define SERIAL_OUT_BAUD_230400 (230400)
+#define SERIAL_OUT_BAUD_115200 (115200)
+#define SERIAL_OUT_BAUD_38400  (38400)
+#define SERIAL_OUT_BAUD (SERIAL_OUT_BAUD_115200)
+
+#define ZD50_DEBUG_SERIAL (true)
+#define ZD50_DEBUG_COMMANDS (false)
+#define ZD50_DEBUG_MENU (false)
+
+
+//  uncomment for enable LED for debugging
+//#define LED_PIN PINB2
+
+/* DEBUG LED */
+#ifdef LED_PIN
+#define LED_ENABLE() DDRB |= _BV(LED_PIN)
+#define LED_OFF() PORTB |= _BV(LED_PIN)
+#define LED_ON() PORTB &= ~(_BV(LED_PIN))
+#define LED_TOGGLE2() PORTB ^= _BV(LED_PIN)
+#define LED_TOGGLE() PINB |= _BV(PINB2)
+#else
+#define IR_PIN_RCV 2
+#define IR_ENABLE() { DDRB &= ~(1 << (IR_PIN_RCV)); PORTB |= 1 << (IR_PIN_RCV); }
+#define IR_EXTERNAL_ISR
+#endif
+/* *** */
+
+/* I2C DISPLAY */
+#define I2C_DDR   DDRA
+#define I2C_SCK   _BV(1)
+#define I2C_SDA   _BV(0)
+
+#define I2C_SDA_LO    I2C_DDR |= I2C_SDA
+#define I2C_SCK_LO    I2C_DDR |= I2C_SCK
+#define I2C_SDA_HI    I2C_DDR &= ~(I2C_SDA)
+#define I2C_SCK_HI    I2C_DDR &= ~(I2C_SCK)
+#define I2C_WAIT      _delay_us(4)
+
 
 /* BACKLIGHT */
 #define BACKLIGHT_PIN_MASK _BV(6)
 #define BACKLIGHT_PORT PORTD
 
+#define BACKLIGHT_MAX_LIGHTNESS (60)
+
 /* PUSH BUTTON */
-#define BUTTON_PIN 4
+//#define BUTTON_PIN 4
 #define BUTTON_BIT _BV(4)
 #define BUTTON_PRESS_STATE() (PIND & BUTTON_BIT ? false : true)
 #define BUTTON_INIT_PORT() DDRD &= ~(BUTTON_BIT); PORTD |= BUTTON_BIT;
@@ -66,20 +101,13 @@
 #define ATTENUATOR_IO_CLK_LO() ( ATTENUATOR_IO_PORT &= ~(ATTENUATOR_PIN_CLK) )
 #define ATTENUATOR_IO_CLK_HI() ( ATTENUATOR_IO_PORT |= (ATTENUATOR_PIN_CLK) )
 
-/* DEBUG LED */
+/* POWER CONTROL */
+#define PWR_PIN_SOFTSTART _BV(4)
+#define PWR_PIN_ON _BV(5)
+#define PWR_PIN_SOURCE_ON _BV(6)
+#define PWR_PINS_MASK (PWR_PIN_SOFTSTART | PWR_PIN_ON | PWR_PIN_SOURCE_ON)
+#define PWR_PORT PORTA
+#define POWER_INIT() DDRA |= PWR_PINS_MASK
 
-#define LED_ENABLE() DDRB |= _BV(LED_PIN)
-#define LED_OFF() PORTB |= _BV(LED_PIN)
-#define LED_ON() PORTB &= ~(_BV(LED_PIN))
-#define LED_TOGGLE2() PORTB ^= _BV(LED_PIN)
-#define LED_TOGGLE() PINB |= _BV(PINB2)
-
-/* *** */
-
-
-#endif
-
-#ifdef ARDUINO_AVR_FEATHER32U4
-#endif
 
 #endif //ZD50_CONFIG_H

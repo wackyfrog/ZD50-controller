@@ -12,22 +12,24 @@ Controller *PowerOnState::getInstance() {
 }
 
 void PowerOnState::begin(Controller *previousController, int param) {
-#ifdef ZD50_DEBUG_SERIAL
+#if ZD50_DEBUG_SERIAL
     ZD50::SerialOut.println(F("[ZD50:ON:START]"));
 #endif
-
+    POWER_PRE_ON();
+    _delay_ms(100);
     POWER_ON();
+    _delay_ms(100);
     Backlight::Scene::startScene(BacklightScene::PowerOn::getInstance());
     Backlight::Scene::stopInstantScene();
 
+    ZD50::Display::setMode(Display::VOLUME);
     if (previousController == PoweringOffState::getInstance()) {
         // Returned from canceled powering off state
 
     } else {
         ZD50::Attenuator::setMode(Attenuator::NORMAL);
-        ZD50::setVolume(VOLUME_START_VALUE);
     }
-
+    ZD50::setVolume(VOLUME_START_VALUE);
 }
 
 void PowerOnState::end() {
