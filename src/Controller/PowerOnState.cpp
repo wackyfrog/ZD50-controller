@@ -12,7 +12,7 @@ Controller *PowerOnState::getInstance() {
 }
 
 void PowerOnState::begin(Controller *previousController, int param) {
-#ifdef ZD50_DEBUG_SERIAL
+#if ZD50_DEBUG_SERIAL
     ZD50::SerialOut.println(F("[ZD50:ON:START]"));
 #endif
 

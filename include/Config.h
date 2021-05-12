@@ -4,9 +4,31 @@
 
 #ifndef ZD50_CONFIG_H
 #define ZD50_CONFIG_H
-#include <Arduino.h>
 
+#include <Arduino.h>
 #include <avr/io.h>
+
+/* EXPANSION IO */
+#define ZD50_GPIO_PORT PORTB
+#define ZD50_GPIO_DDR DDRB
+#define ZD50_GPIO1 3
+#define ZD50_GPIO2 4
+
+/* SERIAL OUT DEBUG PORT */
+#define SERIAL_OUT_TX_PORT ZD50_GPIO_PORT
+#define SERIAL_OUT_TX_PORT_PIN ZD50_GPIO2
+#define SERIAL_OUT_TX_PORT_ADDR 0x05
+#define SERIAL_OUT_TX_DDR ZD50_GPIO_DDR
+
+#define SERIAL_OUT_BAUD_230400 (230400)
+#define SERIAL_OUT_BAUD_115200 (115200)
+#define SERIAL_OUT_BAUD_38400  (38400)
+#define SERIAL_OUT_BAUD (SERIAL_OUT_BAUD_115200)
+
+#define ZD50_DEBUG_SERIAL (true)
+#define ZD50_DEBUG_COMMANDS (false)
+#define ZD50_DEBUG_MENU (false)
+
 
 //  uncomment for enable LED for debugging
 //#define LED_PIN PINB2
@@ -24,34 +46,6 @@
 #define IR_EXTERNAL_ISR
 #endif
 /* *** */
-
-
-/* EXPANSION IO */
-#define ZD50_GPIO1 3
-#define ZD50_GPIO2 4
-
-/* SERIAL DEBUG PORT */
-//#define ZD50_SOFT_SERIAL
-#define ZD50_DEBUG_SERIAL
-//#define SERIAL_DEBUG_BAUD_230400
-//#define SERIAL_DEBUG_BAUD_115200
-//#define SERIAL_DEBUG_BAUD_38400
-#define DEBUG_PIN_TX ZD50_GPIO1
-#define DEBUG_PIN_RX ZD50_GPIO2
-
-#ifdef ZD50_SOFT_SERIAL
-#include "SerialOut.h"
-    #define SERIAL_OUT_T TinySerialOut
-    #define SERIAL_OUT_REF SerialOut
-
-#else
-
-#define SERIAL_OUT_T HardwareSerial
-#define SERIAL_OUT_REF Serial
-#endif
-
-#define ZD50_DEBUG_COMMANDS
-#define ZD50_DEBUG_MENU
 
 /* I2C DISPLAY */
 #define I2C_DDR   DDRA

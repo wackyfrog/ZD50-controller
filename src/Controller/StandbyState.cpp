@@ -32,7 +32,7 @@ Controller *StandbyState::getInstance() {
 }
 
 void StandbyState::begin(Controller *previousController, int param) {
-#ifdef ZD50_DEBUG_SERIAL
+#if ZD50_DEBUG_SERIAL
     ZD50::SerialOut.println(F("[ZD50:Standby]"));
 #endif
     POWER_OFF();
@@ -87,7 +87,7 @@ void StandbyState::command(Command command, CommandParam param) {
 
 void StandbyState::onMenuClose() {
     Display::blink(Display::NONE);
-#ifdef ZD50_DEBUG_MENU
+#if ZD50_DEBUG_MENU
     Serial.println(F("[MENU_CLOSE]"));
 #endif
 
@@ -96,7 +96,7 @@ void StandbyState::onMenuClose() {
 }
 
 void StandbyState::onMenuSelect(Menu::Id id) {
-#ifdef ZD50_DEBUG_MENU
+#if ZD50_DEBUG_MENU
     Serial.print(F("[MENU_SELECT:"));
     Serial.print(id);
     Serial.println(F("]"));
@@ -126,7 +126,7 @@ void StandbyState::onMenuSelect(Menu::Id id) {
 }
 
 void StandbyState::onMenuEnter(Menu::Id id) {
-#ifdef ZD50_DEBUG_MENU
+#if ZD50_DEBUG_MENU
     Serial.print(F("[MENU_ENTER:"));
     Serial.print(id);
     Serial.println(F("]"));

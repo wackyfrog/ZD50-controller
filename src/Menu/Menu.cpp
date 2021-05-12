@@ -45,7 +45,7 @@ namespace Menu {
     }
 
     bool leave() {
-#ifdef ZD50_DEBUG_MENU
+#if ZD50_DEBUG_MENU
         Serial.println(F("[menu:leave]"));
 #endif
         if (isEntered()) {
@@ -62,13 +62,13 @@ namespace Menu {
         selected = newMenu;
         SelectCallback *callback = (SelectCallback *) pgm_read_word(&selected->onSelect);
 
-#ifdef ZD50_DEBUG_MENU
+#if ZD50_DEBUG_MENU
         Serial.print(F("[menu:select] id:"));
         Serial.println(static_cast<Id>(pgm_read_byte(&selected->id)));
 #endif
 
         if (callback) {
-#ifdef ZD50_DEBUG_MENU
+#if ZD50_DEBUG_MENU
             Serial.println(F("[menu:select:callback]"));
 #endif
 
@@ -90,7 +90,7 @@ namespace Menu {
         EnterCallback *callback = (EnterCallback *) pgm_read_word(&selected->onEnter);
 
         if (callback) {
-#ifdef ZD50_DEBUG_MENU
+#if ZD50_DEBUG_MENU
             Serial.println(F("[menu:enter:callback]"));
 #endif
             entered = selected;

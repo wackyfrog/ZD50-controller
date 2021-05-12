@@ -81,10 +81,12 @@ namespace Attenuator {
 
     void setLevel(const uint8_t newLevel, const bool isMuted) {
         _level = newLevel & ATTENUATOR_LEVEL_MASK;
-        SerialOut.print(F("========================"));
-        SerialOut.print(F("SET_ATTENUATION_LEVEL: "));
-        SerialOut.println(_level);
-        SerialOut.println();
+#if ZD50_DEBUG_SERIAL
+        ZD50::SerialOut.print(F("========================"));
+        ZD50::SerialOut.print(F("SET_ATTENUATION_LEVEL: "));
+        ZD50::SerialOut.println(_level);
+        ZD50::SerialOut.println();
+#endif
         _isMuted = isMuted;
         send();
     }
@@ -95,15 +97,12 @@ namespace Attenuator {
         char bitCounter;
 
 //        lastSentLevel = 0xFF;
-//        ZD50::Serial.println(F("SET_AND_OFF"));
         for (bitCounter = 5; bitCounter >= 0; bitCounter--) {
 //            maskedLevel = _level & (1 << bitCounter);
             _send(_level & (1 << bitCounter), ~_level & (1 << bitCounter), _isMuted);
 //            lastSentLevel = maskedLevel;
             _delay_ms(ATT_RELAY_PULSE_MS);
         }
-
-        SerialOut.println();
     }
 
     void _serialOutBinary(uint16_t relayRegister);
@@ -115,8 +114,10 @@ namespace Attenuator {
     void _send(const uint8_t setLevelBits, const uint8_t clearLevelBits, const bool mute) {
         uint16_t relayRegister = 0;
         char bitCounter;
-        SerialOut.print(F(" lv "));
-        SerialOut.println(setLevelBits);
+#if ZD50_DEBUG_SERIAL
+        ZD50::SerialOut.print(F(" lv "));
+        ZD50::SerialOut.println(setLevelBits);
+#endif
 
         // set two bits for each attenuation value bit from 6 to 1
         for (bitCounter = 5; bitCounter >= 0; bitCounter--) {
@@ -134,9 +135,7 @@ namespace Attenuator {
             // bit 8 of shift register is mute state (actite low): 0 - mute is on, 1 - mute is off
             relayRegister |= (1 << 8);
         }
-        SerialOut.print(F(" rg "));
         _serialOutBinary(relayRegister);
-        SerialOut.println();
 
         for (bitCounter = 0; bitCounter <= 15; bitCounter++) {
             if (relayRegister & (1 << 15)) {
@@ -154,12 +153,16 @@ namespace Attenuator {
     }
 
     void _serialOutBinary(uint16_t relayRegister) {
+#if ZD50_DEBUG_SERIAL
+        ZD50::SerialOut.print(F(" register "));
         for (int i = 15; i >= 0; i--) {
-            SerialOut.print((relayRegister & (1 << i)) ? 1 : 0);
+            ZD50::SerialOut.print((relayRegister & (1 << i)) ? 1 : 0);
             if (i == 8) {
-                SerialOut.print(F(" "));
+                ZD50::SerialOut.print(F(" "));
             }
         }
+        ZD50::SerialOut.println();
+#endif
     }
 
     void send() {

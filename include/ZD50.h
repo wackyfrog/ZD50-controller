@@ -6,6 +6,11 @@
 #define ZD50_H
 
 #include "Config.h"
+
+#if ZD50_DEBUG_SERIAL
+#include "SerialOut.h"
+#endif
+
 #include <Arduino.h>
 #include <AceRoutine.h>
 
@@ -45,7 +50,9 @@ namespace ZD50 {
 
     namespace Luminance = Luminance;
 
-    extern SERIAL_OUT_T &SerialOut;
+#if ZD50_DEBUG_SERIAL
+    extern TinySerialOut SerialOut;
+#endif
 };
 
 #endif //ZD50_H

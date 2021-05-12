@@ -18,14 +18,16 @@
 #error F_CPU value must be 1000000, 8000000 or 16000000.
 #endif
 
-#if defined(SERIAL_DEBUG_BAUD_230400)
-    #if (F_CPU != 8000000) && (F_CPU != 16000000)
-    #error F_CPU value must be 8000000 or 16000000 for baudrate 230400
-    #endif
-#elif defined(SERIAL_DEBUG_BAUD_115200)
-#elif defined(SERIAL_DEBUG_BAUD_38400)
+// FIXME It's seems 38400 is broken
+
+#if (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_230400)
+#if (F_CPU != 8000000) && (F_CPU != 16000000)
+#error F_CPU value must be 8000000 or 16000000 for baudrate 230400
+#endif
+#elif (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_115200)
+#elif (SERIAL_OUT_BAUD == SERIAL_OUT_BAUD_38400)
 #else
-    #error Must define SERIAL_DEBUG_BAUD_230400, 115200 or 38400
+#error Must define SERIAL_OUT_BAUD_230400, 115200 or 38400
 #endif
 
 
@@ -153,7 +155,5 @@ public:
     void println(void);
 
 };
-
-extern TinySerialOut SerialOut;
 
 #endif // SERIAL_OUT_H

@@ -4,17 +4,20 @@
 
 #include "ZD50.h"
 #include "Controller/States.h"
+#include "SerialOut.h"
 
 namespace ZD50 {
-    SERIAL_OUT_T &SerialOut = SERIAL_OUT_REF;
+#if ZD50_DEBUG_SERIAL
+    TinySerialOut SerialOut;
+#endif
 
     Controller *controller;
 
     int volume = 0;
 
     void init() {
-#ifdef ZD50_DEBUG_SERIAL
-        SerialOut.begin(38400);
+#if ZD50_DEBUG_SERIAL
+        SerialOut.begin(0);
         SerialOut.println(F("[ZD50:init]"));
 #endif
         POWER_INIT();
@@ -133,7 +136,7 @@ namespace ZD50 {
     }
 
     void command(Controller::Command command, Controller::CommandParam param) {
-#ifdef ZD50_DEBUG_COMMANDS
+#if ZD50_DEBUG_COMMANDS
         SerialOut.print(F("CMD:"));
         SerialOut.print(command);
         SerialOut.print(F(" param: "));
