@@ -30,10 +30,11 @@ unsigned long eeprom_crc(void) {
 }
 
 void Settings::init() {
+#if ZD50_DEBUG_SERIAL
+    ZD50::SerialOut.print("EEPROM length: ");
+    ZD50::SerialOut.println(EEPROM.length());
 
-    Serial.print("EEPROM length: ");
-    Serial.println(EEPROM.length());
-
-    Serial.print("CRC32 of EEPROM data: 0x");
-    Serial.println(eeprom_crc(), HEX);
+    ZD50::SerialOut.print("CRC32 of EEPROM data: 0x");
+    ZD50::SerialOut.println(eeprom_crc(), HEX);
+#endif
 }

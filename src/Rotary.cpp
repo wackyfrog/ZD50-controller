@@ -107,7 +107,7 @@ const unsigned char ttable[6][4] = {
 
             if (value != 0) {
                 ZD50::command(Controller::Command::ROTATE, value);
-                COROUTINE_DELAY(30);
+                COROUTINE_DELAY(10);
             }
         }
     }

@@ -23,10 +23,13 @@
 #include "Button.h"
 #include "Controller/Controller.h"
 #include "Settings.h"
+#include "IR.h"
 
 #define VOLUME_MAX_VALUE (MAX_ATTENUATION_LEVEL + 1)
 #define VOLUME_MIN_VALUE 0
-#define VOLUME_START_VALUE 0
+#define VOLUME_START_VALUE 10
+
+#define CONTROLLER_TICK_MS 10
 
 namespace ZD50 {
     void init();

@@ -13,10 +13,12 @@ using namespace Backlight;
 static Scene *scene = nullptr;
 static Scene *instantScene = nullptr;
 
-void Backlight::Scene::startInstantScene(Scene *newScene) {
+void Backlight::Scene::startInstantScene(Scene *newScene, uint32_t limitDuration) {
     instantScene = newScene;
     if (instantScene != nullptr) {
         instantScene->reset();
+        instantScene->finishAt = limitDuration > 0 ? millis() + limitDuration : 0;
+        instantScene->begin();
     }
 }
 
@@ -24,7 +26,7 @@ void Backlight::Scene::stopInstantScene() {
     instantScene = nullptr;
 }
 
-void Scene::startScene(Scene *newScene) {
+void Scene::startScene(Scene *newScene, uint32_t limitDuration) {
     if (instantScene == nullptr) {
         if (scene != nullptr) {
             scene->end();
@@ -37,6 +39,8 @@ void Scene::startScene(Scene *newScene) {
 
     if (scene != nullptr) {
         scene->reset();
+        scene->finishAt = limitDuration > 0 ? millis() + limitDuration : 0;
+        scene->begin();
     }
 }
 
@@ -44,22 +48,31 @@ void Scene::nextFrameDelay(Scene::Millis newDelay) {
     waitUntil = newDelay + millis();
 }
 
-bool Scene::isFinished() const {
+bool Scene::isFinished() {
+    if (finished) {
+        return true;
+    }
+    if (finishAt > 0 && millis()  > finishAt) {
+        finished = true;
+    }
     return finished;
 }
 
 bool Scene::isReady() {
-    return !finished && (millis() > waitUntil);
+    return !isFinished() && (millis() > waitUntil);
 }
 
 void Scene::reset() {
     waitUntil = 0;
     finished = false;
-    begin();
 }
 
 Scene *Scene::getInstance() {
     return scene;
+}
+
+uint32_t Scene::getFinishTime() const {
+    return finishAt;
 }
 
 COROUTINE(scenePerformer) {
@@ -80,6 +93,7 @@ COROUTINE(scenePerformer) {
             } else {
                 if (resetScene) {
                     scene->reset();
+                    scene->begin();
                     resetScene = false;
                     scene->frame();
 

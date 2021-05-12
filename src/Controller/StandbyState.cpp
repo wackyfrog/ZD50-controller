@@ -39,12 +39,9 @@ void StandbyState::begin(Controller *previousController, int param) {
 
     Backlight::Scene::stopInstantScene();
     ZD50::Backlight::Scene::startScene(BacklightScene::Standby::getInstance());
-    Display::clear();
-
-    if (previousController == nullptr) {
-        ZD50::Attenuator::setMode(Attenuator::POWER_SAVE);
-        ZD50::Attenuator::setLevel(MAX_ATTENUATION_LEVEL, false);
-    }
+    ZD50::Display::setMode(Display::STANDBY);
+    ZD50::Attenuator::setMode(Attenuator::POWER_SAVE);
+    ZD50::Attenuator::setLevel(MAX_ATTENUATION_LEVEL, false);
 }
 
 void StandbyState::end() {
@@ -88,7 +85,7 @@ void StandbyState::command(Command command, CommandParam param) {
 void StandbyState::onMenuClose() {
     Display::blink(Display::NONE);
 #if ZD50_DEBUG_MENU
-    Serial.println(F("[MENU_CLOSE]"));
+    ZD50::SerialOut.println(F("[MENU_CLOSE]"));
 #endif
 
     Display::clear();
@@ -97,9 +94,9 @@ void StandbyState::onMenuClose() {
 
 void StandbyState::onMenuSelect(Menu::Id id) {
 #if ZD50_DEBUG_MENU
-    Serial.print(F("[MENU_SELECT:"));
-    Serial.print(id);
-    Serial.println(F("]"));
+    ZD50::SerialOut.print(F("[MENU_SELECT:"));
+    ZD50::SerialOut.print(id);
+    ZD50::SerialOut.println(F("]"));
 #endif
     Display::blink(Display::NONE);
     Display::clearBuffer();
@@ -127,9 +124,9 @@ void StandbyState::onMenuSelect(Menu::Id id) {
 
 void StandbyState::onMenuEnter(Menu::Id id) {
 #if ZD50_DEBUG_MENU
-    Serial.print(F("[MENU_ENTER:"));
-    Serial.print(id);
-    Serial.println(F("]"));
+    ZD50::SerialOut.print(F("[MENU_ENTER:"));
+    ZD50::SerialOut.print(id);
+    ZD50::SerialOut.println(F("]"));
 #endif
     Display::blink(Display::FAST);
 

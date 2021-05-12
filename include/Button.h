@@ -24,7 +24,7 @@ namespace Button {
     } StateTransition;
 
     const StateTransition statesTransition[__LENGTH__] = {
-            {100,  SHORT_PRESS}, // UNPRESSED -> PRESS
+            {30,  SHORT_PRESS}, // UNPRESSED -> PRESS
             {800, MIDDLE_PRESS}, // PRESS -> MIDDLE_PRESS
             {800, LONG_PRESS}, // MIDDLE_PRESS -> LONG_PRESS
             {800, LONG_PRESS} // LONG_PRESS

@@ -15,6 +15,8 @@ namespace ZD50 {
 
     int volume = 0;
 
+    void updateDisplayBrightness(bool force = false);
+
     void init() {
 #if ZD50_DEBUG_SERIAL
         SerialOut.begin(0);
@@ -25,15 +27,20 @@ namespace ZD50 {
 
         Backlight::init();
         Display::init();
-        Display::displayWelcome();
+        Display::setMode(Display::WELCOME);
+        updateDisplayBrightness(true);
         Settings::init();
-        _delay_ms(200);
         Attenuator::init();
+        ZD50::Attenuator::setMode(Attenuator::POWER_SAVE);
+        ZD50::Attenuator::setLevel(MAX_ATTENUATION_LEVEL, true);
+        _delay_ms(500);
+        ZD50::Attenuator::setLevel(MAX_ATTENUATION_LEVEL, false);
         Display::clear();
         setController(StandbyState::getInstance());
         Luminance::init();
         Button::init();
         Rotary::init();
+        IR::init();
     }
 
     Controller *getController() {
@@ -58,17 +65,30 @@ namespace ZD50 {
     }
 
     void setVolume(int newVolume) {
+        if (volume == newVolume) {
+            return;
+        }
+
         if (newVolume > VOLUME_MAX_VALUE) {
             newVolume = VOLUME_MAX_VALUE;
         }
         if (newVolume < VOLUME_MIN_VALUE) {
             newVolume = VOLUME_MIN_VALUE;
         }
-        if (volume != newVolume) {
-            volume = newVolume;
-            Attenuator::setLevel(VOLUME_TO_ATTENUATION_LEVEL(volume), VOLUME_TO_MUTE_STATE(volume));
+
+        if (VOLUME_TO_MUTE_STATE(newVolume)) {
+            Display::setMode(Display::MUTE);
+
+        } else {
+            if (VOLUME_TO_MUTE_STATE(volume)) {
+                Display::setMode(Display::VOLUME);
+
+            }
+            Display::print((uint8_t) newVolume);
         }
-        Display::print((uint8_t) volume);
+
+        Attenuator::setLevel(VOLUME_TO_ATTENUATION_LEVEL(newVolume), VOLUME_TO_MUTE_STATE(newVolume));
+        volume = newVolume;
     }
 
     bool handleMenuButton() {
@@ -135,6 +155,13 @@ namespace ZD50 {
         return true;
     }
 
+    void updateDisplayBrightness(bool force) {
+        uint8_t brightness = 16 - (Luminance::read() >> 6);
+        if (force || ZD50::Display::getBrightness() != brightness) {
+            ZD50::Display::setBrightness(brightness);
+        }
+    }
+
     void command(Controller::Command command, Controller::CommandParam param) {
 #if ZD50_DEBUG_COMMANDS
         SerialOut.print(F("CMD:"));
@@ -155,30 +182,14 @@ namespace ZD50 {
         COROUTINE_LOOP() {
             COROUTINE_AWAIT(controller != nullptr);
             controller->tick();
-            COROUTINE_DELAY(100);
+            COROUTINE_DELAY(CONTROLLER_TICK_MS);
         }
     }
 
     COROUTINE(liminance) {
         COROUTINE_LOOP() {
             COROUTINE_DELAY(1000);
-
-            uint8_t brightness = 16 - (Luminance::read() >> 6);
-            if (ZD50::Display::getBrightness() != brightness) {
-                ZD50::Display::setBrightness(brightness);
-
-                SerialOut.print(F("IL:"));
-                SerialOut.print(Luminance::getValue());
-                SerialOut.print(F(":BR:"));
-                SerialOut.print(brightness);
-                SerialOut.println();
-            }
-
-            static char rxChar;
-            while (-1 != (rxChar = Serial.read())) {
-                Serial.print(rxChar);
-            }
-
+            updateDisplayBrightness();
         }
     }
 

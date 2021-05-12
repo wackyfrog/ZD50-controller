@@ -13,11 +13,11 @@ Controller *PoweringOffState::getInstance() {
 }
 
 void PoweringOffState::begin(Controller *previousController, int param) {
-    stopAtTime = millis() + 1000;
+    stopAtTime = millis() + POWERING_OFF_DURATION;
     targetState = (TargetState) param;
-
+    Display::blink(Display::FAST);
     Backlight::Scene::stopInstantScene();
-    Backlight::Scene::startScene(BacklightScene::PoweringOff::getInstance());
+    Backlight::Scene::startScene(BacklightScene::PoweringOff::getInstance(), POWERING_OFF_DURATION);
 
     POWER_SWITCHING_OFF();
 }
@@ -29,7 +29,7 @@ void PoweringOffState::tick() {
 
         switch (targetState) {
             case PowerOnSource:
-                ZD50::setController(PowerOnState::getInstance());
+                ZD50::setController(SourcePowerOnState::getInstance());
                 break;
 
             case StandBy:
@@ -40,6 +40,7 @@ void PoweringOffState::tick() {
 }
 
 void PoweringOffState::end() {
+    Display::blink(Display::NONE);
     Backlight::Scene::stopInstantScene();
 }
 
