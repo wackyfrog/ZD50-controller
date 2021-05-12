@@ -17,7 +17,7 @@ void SourcePowerOnState::begin(Controller *previousController, int param) {
 #endif
 
     POWER_ON_SOURCE_ONLY();
-    ZD50::Display::displayHeadphones();
+    ZD50::Display::setMode(Display::HEADPHONES);
     Backlight::Scene::startScene(BacklightScene::SourcePowerOn::getInstance());
     Backlight::Scene::stopInstantScene();
 }

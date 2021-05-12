@@ -9,35 +9,42 @@
 using namespace Backlight;
 using namespace BacklightScene;
 
-static uint8_t state = 0;
+static int stepsLeft = 1;
 //static int bri;
 //static int briStep;
 static const int minBrightness = 0;
 static const int maxBrightness = 4;
 
+#define VAL_STEPS ( 10 )
+#define TOTAL_STEPS ( (uint16_t)( BACKLIGHT_LED_COUNT * VAL_STEPS) )
+
+static uint32_t frameDelay = 0;
 void PoweringOff::begin() {
-    state = 12;
+    stepsLeft = TOTAL_STEPS;
+    frameDelay = (getFinishTime() - millis()) / TOTAL_STEPS;
 }
 
-#define LED_INDEX(i) (i < 10 ? i + 2 : i - 10)
-
 void PoweringOff::frame() {
-
-    Backlight::fill((Backlight::cRGB) {0, 0, 0});
-    if (state == 0) {
+    if (stepsLeft == 0) {
         Backlight::update();
         done();
         return;
     }
+    cRGB c;
 
-    cRGB color = (Backlight::cRGB) {50, 50, 50};
+    for (int index = 0; index < BACKLIGHT_LED_COUNT; index++) {
 
-    for (uint8_t index = 0; index < state; ++index) {
-        Backlight::setPixel(LED_INDEX(index), color);
+        uint16_t percentLeft = 100 * (uint16_t) stepsLeft / TOTAL_STEPS;
+        int val = percentLeft / 2
+                  + (50 * (BACKLIGHT_LED_COUNT - (uint16_t)index)) /  BACKLIGHT_LED_COUNT;
+
+        HSV8_TO_CRGB(HSV_HUE_DEGREE(30), 100 - percentLeft, HSV_VAL_PERCENT(val > 100 ? 100 : val), &c);
+
+        Backlight::setPixel(LED_INDEX(index), c);
     }
     Backlight::update();
-    state--;
-    nextFrameDelay(80);
+    stepsLeft--;
+    nextFrameDelay(frameDelay);
 }
 
 Scene *PoweringOff::getInstance() {

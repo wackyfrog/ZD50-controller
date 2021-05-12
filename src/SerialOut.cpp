@@ -7,7 +7,7 @@
  * Using PB2 // (Pin7 on Tiny85) as default TX pin to be compatible with digispark board
  * To change the output pin, modify the line "#define DEBUG_TX_PORT_PIN ..." in TinySerialOut.h or or set it as compiler symbol like "-DTX_PIN PB1".
  *
- * Using the Serial.print commands needs 4 bytes extra for each call.
+ * Using the ZD50::SerialOut.print commands needs 4 bytes extra for each call.
  *
  *
  *  Copyright (C) 2015-2020  Armin Joachimsmeyer

@@ -5,6 +5,9 @@
 #ifndef ZD50_CONTROLLER_POWERINGONSTATE_H
 #define ZD50_CONTROLLER_POWERINGONSTATE_H
 
+#define FAST_SOFT_START_DURATION ( (uint32_t)4000 )
+#define SOFT_START_DURATION ( (uint32_t)10000 )
+
 #include "Controller.h"
 
 class PoweringOnState : Controller {
@@ -18,7 +21,7 @@ public:
 private:
     void tick() override;
 
-    unsigned long stopAtTime;
+    void frame() const;
 };
 
 

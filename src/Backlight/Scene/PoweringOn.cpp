@@ -5,50 +5,48 @@
 #include "Backlight.h"
 #include "Backlight/Scenes.h"
 #include "ZD50.h"
+#include "Controller/States.h"
 
 using namespace Backlight;
 using namespace BacklightScene;
 
-static uint8_t state = 0;
-//static int bri;
-//static int briStep;
-static const int minBrightness = 0;
-static const int maxBrightness = 4;
+#define HUE_START 230
+#define HUE_FINISH 30
+#define HUE_STEPS (abs(HUE_FINISH - HUE_START) )
+#define TOTAL_STEPS (uint32_t) HUE_STEPS
+
+static cRGB c;
+
+static uint32_t frameDelay = 0;
+
+static int hue = HUE_START;
+
+static int stepsLeft = 0;
 
 void PoweringOn::begin() {
-    state = 0;
+    hue = HUE_START;
+    frameDelay = (getFinishTime() - millis()) / TOTAL_STEPS;
+    stepsLeft = TOTAL_STEPS;
 }
 
-#define LED_INDEX(i) (i < 10 ? i + 2 : i - 10)
-
 void PoweringOn::frame() {
-
-    switch (state) {
-        case 13:
-            state++;
-            nextFrameDelay(10);
-            return;
-
-        case 14:
-            Backlight::fill((Backlight::cRGB) {0, 0, 0});
-            Backlight::update();
-            done();
-            return;
-    }
-
-    Backlight::fill((Backlight::cRGB) {0, 0, 0});
-    cRGB color = (Backlight::cRGB) {50, 50, 50};
-
-    for (uint8_t index = 0; index < state; ++index) {
-        Backlight::setPixel(LED_INDEX(index), color);
-    }
+    HSV8_TO_CRGB(hue, stepsLeft < 25 ? stepsLeft << 2 : 100, 100, &c);
+    Backlight::fill(c);
     Backlight::update();
-    ++state;
-    nextFrameDelay(160);
-
+    hue--;
+    if (hue < 0) {
+        hue = 359;
+    }
+    if (stepsLeft == 0) {
+        done();
+    } else {
+        stepsLeft--;
+        nextFrameDelay(frameDelay);
+    }
 }
 
 Scene *PoweringOn::getInstance() {
     static PoweringOn inst;
     return (Scene *) &inst;
 }
+

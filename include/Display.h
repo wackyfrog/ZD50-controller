@@ -3,6 +3,8 @@
 
 #define FLIPPED_MATRIX
 
+#include "Display/Font.h"
+
 namespace Display {
 //    enum Font {
 //        FONT_1
@@ -18,6 +20,14 @@ namespace Display {
         MEDIUM,
         FAST
     } Blink;
+
+    typedef enum {
+        STANDBY,
+        WELCOME,
+        MUTE,
+        HEADPHONES,
+        VOLUME
+    } Mode;
 
     void init();
 
@@ -39,13 +49,15 @@ namespace Display {
 
     void displayOff();
 
-    void modeMute();
-
     void clear();
 
     void send(uint8_t val);
 
     uint8_t getRamAdr(uint8_t row);
+
+    void pixel(const uint8_t col, const uint8_t row, bool lighten);
+
+    void col(const uint8_t col, uint8_t pixels);
 
     void printBitmap(const char x, const char y, const uint64_t *image);
 
@@ -53,11 +65,9 @@ namespace Display {
 
     void flushBuffer();
 
-    void displayWelcome();
-
-    void displayHeadphones();
-
     uint8_t getBrightness();
+
+    void setMode(Mode mode);
 
 //    void setFont(Font newFont);
 

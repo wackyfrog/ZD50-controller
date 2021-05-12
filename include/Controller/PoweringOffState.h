@@ -5,6 +5,8 @@
 #ifndef ZD50_CONTROLLER_POWERINGOFFSTATE_H
 #define ZD50_CONTROLLER_POWERINGOFFSTATE_H
 
+#define POWERING_OFF_DURATION 2000
+
 #include "Controller.h"
 
 class PoweringOffState : Controller {

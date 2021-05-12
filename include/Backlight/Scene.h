@@ -27,12 +27,11 @@ namespace Backlight {
             finished = true;
         }
 
-
-        static void startInstantScene(Scene *newScene);
+        static void startInstantScene(Scene *newScene, uint32_t limitDuration = 0);
 
         static void stopInstantScene();
 
-        static void startScene(Scene *newScene);
+        static void startScene(Scene *newScene, uint32_t limitDuration = 0);
 
         static Scene *getInstance();
 
@@ -56,12 +55,15 @@ namespace Backlight {
             return previewMode;
         }
 
-        bool isFinished() const;
+        bool isFinished();
+
+        uint32_t getFinishTime() const;
 
     private:
         Millis waitUntil;
         bool previewMode = false;
         bool finished = false;
+        uint32_t finishAt = 0;
     };
 }
 

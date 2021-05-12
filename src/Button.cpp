@@ -8,7 +8,7 @@
 
 namespace Button {
 
-    static bool isPressed = false;
+    volatile static bool isPressed = false;
 
     State state = UNPRESSED;
 

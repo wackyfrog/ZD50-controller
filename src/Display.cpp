@@ -44,7 +44,7 @@
 #define I2C_READ 1
 #define I2C_WRITE 0
 
-#define ROW_RAM_ADDR(row) (row < 8 ? row << 1 : ((row - 8) << 1) | 0x01)
+#define ROW_RAM_ADDR(row) ((row) < 8 ? (row) << 1 : (((row) - 8) << 1) | 0x01)
 
 namespace Display {
 
@@ -186,6 +186,15 @@ namespace Display {
         return row < 8 ? row << 1 : ((row - 8) << 1) | 0x01;
     }
 
+    void pixel(const uint8_t row, const uint8_t col, bool lighten) {
+        uint8_t addr = ROW_RAM_ADDR(col & 0xf);
+        buffer[addr] = (buffer[addr] & ~(0x80 >> row)) | (lighten ? 0x80 >> row : 0x00);
+    }
+
+    void col(const uint8_t col, uint8_t pixels) {
+        buffer[ROW_RAM_ADDR(col & 0xf)] = pixels;
+    }
+
     void printBitmap(const char x, const char y, const uint64_t *image) {
         uint8_t row;
         uint64_t bitmap;
@@ -268,9 +277,7 @@ namespace Display {
         }
     }
 
-    void print(const int volume) {
-        clearBuffer();
-
+        void print(const int volume) {
         char buf[8] = {"\0"};
         if (volume < 0) {
             itoa(-volume, buf + 1, 10);
@@ -278,29 +285,8 @@ namespace Display {
         } else {
             itoa(volume, buf, 10);
         }
+        clearBuffer();
         print(buf);
-        flushBuffer();
-    }
-
-    void modeMute() {
-        clearBuffer();
-        printBitmap(3, 0, (uint64_t *) &SYMBOLS[0]);
-        printBitmap(9, 0, (uint64_t *) &SYMBOLS[1]);
-        flushBuffer();
-        blink(FAST);
-    }
-
-    void displayWelcome() {
-        clearBuffer();
-        printBitmap(0, 0, (uint64_t *) &SYMBOLS[2]);
-        printBitmap(8, 0, (uint64_t *) &SYMBOLS[3]);
-        flushBuffer();
-    }
-
-    void displayHeadphones() {
-        clearBuffer();
-        printBitmap(0, 0, (uint64_t *) &SYMBOLS[4]);
-        printBitmap(8, 0, (uint64_t *) &SYMBOLS[5]);
         flushBuffer();
     }
 
@@ -314,7 +300,48 @@ namespace Display {
 
     void clear() {
         clearBuffer();
+        blink(NONE);
         flushBuffer();
+    }
+
+    void setMode(Mode mode) {
+        switch (mode) {
+            case WELCOME:
+                operate();
+                clear();
+                printBitmap(0, 0, (uint64_t *) &SYMBOLS[2]);
+                printBitmap(8, 0, (uint64_t *) &SYMBOLS[3]);
+                flushBuffer();
+                break;
+
+            case HEADPHONES:
+                operate();
+                clear();
+                printBitmap(0, 0, (uint64_t *) &SYMBOLS[4]);
+                printBitmap(8, 0, (uint64_t *) &SYMBOLS[5]);
+                flushBuffer();
+                break;
+
+            case MUTE:
+                operate();
+                blink(MEDIUM);
+                clearBuffer();
+                printBitmap(3, 0, (uint64_t *) &SYMBOLS[0]);
+                printBitmap(9, 0, (uint64_t *) &SYMBOLS[1]);
+                flushBuffer();
+                break;
+
+            case VOLUME:
+                operate();
+                clear();
+                break;
+
+            case STANDBY:
+                clear();
+                standby();
+                break;
+
+        }
     }
 
 }
