@@ -31,13 +31,17 @@ namespace Display {
 
     void init();
 
+    void adjustBrightness();
+
     void print(char *text);
 
     void print(const int volume);
 
     void clearBuffer();
 
-    void setBrightness(uint8_t level); // level 0-16, 0 means display off
+    void setBrightness(uint8_t level); // level 0-15
+
+    uint8_t getBrightness();
 
     void standby();
 
@@ -65,7 +69,6 @@ namespace Display {
 
     void flushBuffer();
 
-    uint8_t getBrightness();
 
     void setMode(Mode mode);
 
