@@ -13,9 +13,7 @@ namespace ZD50 {
 
     Controller *controller;
 
-    int volume = 0;
-
-    void updateDisplayBrightness(bool force = false);
+    int volume = -1;
 
     void init() {
 #if ZD50_DEBUG_SERIAL
@@ -28,7 +26,6 @@ namespace ZD50 {
         Backlight::init();
         Display::init();
         Display::setMode(Display::WELCOME);
-        updateDisplayBrightness(true);
         Settings::init();
         Attenuator::init();
         ZD50::Attenuator::setMode(Attenuator::POWER_SAVE);
@@ -36,8 +33,9 @@ namespace ZD50 {
         _delay_ms(500);
         ZD50::Attenuator::setLevel(MAX_ATTENUATION_LEVEL, false);
         Display::clear();
-        setController(StandbyState::getInstance());
         Luminance::init();
+
+        setController(StandbyState::getInstance());
         Button::init();
         Rotary::init();
         IR::init();
@@ -155,13 +153,6 @@ namespace ZD50 {
         return true;
     }
 
-    void updateDisplayBrightness(bool force) {
-        uint8_t brightness = 16 - (Luminance::read() >> 6);
-        if (force || ZD50::Display::getBrightness() != brightness) {
-            ZD50::Display::setBrightness(brightness);
-        }
-    }
-
     void command(Controller::Command command, Controller::CommandParam param) {
 #if ZD50_DEBUG_COMMANDS
         SerialOut.print(F("CMD:"));
@@ -188,8 +179,9 @@ namespace ZD50 {
 
     COROUTINE(liminance) {
         COROUTINE_LOOP() {
+            COROUTINE_AWAIT(controller != nullptr);
             COROUTINE_DELAY(1000);
-            updateDisplayBrightness();
+            Display::adjustBrightness();
         }
     }
 
