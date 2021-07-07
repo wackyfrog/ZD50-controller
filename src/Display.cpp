@@ -3,6 +3,7 @@
 #include "Display.h"
 #include "ZD50.h"
 #include "Display/Font.h"
+#include "Luminance.h"
 #include <SoftI2C.h>
 #include "Config.h"
 //Commands
@@ -24,22 +25,8 @@
 #define HT16K33_RIS_INTL      0b00000001 // Set INT as int active low
 #define HT16K33_RIS_INTH      0b00000011 // Set INT as int active high
 #define HT16K33_DIM           0b11100000 // Dimming set
-#define HT16K33_DIM_1         0b00000000 // Dimming set - 1/16
-#define HT16K33_DIM_2         0b00000001 // Dimming set - 2/16
-#define HT16K33_DIM_3         0b00000010 // Dimming set - 3/16
-#define HT16K33_DIM_4         0b00000011 // Dimming set - 4/16
-#define HT16K33_DIM_5         0b00000100 // Dimming set - 5/16
-#define HT16K33_DIM_6         0b00000101 // Dimming set - 6/16
-#define HT16K33_DIM_7         0b00000110 // Dimming set - 7/16
-#define HT16K33_DIM_8         0b00000111 // Dimming set - 8/16
-#define HT16K33_DIM_9         0b00001000 // Dimming set - 9/16
-#define HT16K33_DIM_10        0b00001001 // Dimming set - 10/16
-#define HT16K33_DIM_11        0b00001010 // Dimming set - 11/16
-#define HT16K33_DIM_12        0b00001011 // Dimming set - 12/16
-#define HT16K33_DIM_13        0b00001100 // Dimming set - 13/16
-#define HT16K33_DIM_14        0b00001101 // Dimming set - 14/16
-#define HT16K33_DIM_15        0b00001110 // Dimming set - 15/16
-#define HT16K33_DIM_16        0b000001111 // Dimming set - 16/16
+#define HT16K33_DIM_MIN       0b00000000 // Dimming set - 1/16
+#define HT16K33_DIM_MAX       0b000001111 // Dimming set - 16/16
 
 #define I2C_READ 1
 #define I2C_WRITE 0
@@ -81,13 +68,20 @@ namespace Display {
     }
 
     void setBrightness(uint8_t level) {
-        brightness = level;
-        if (level > HT16K33_DIM_16) {
-            level = HT16K33_DIM_16;
-        } else if (level < HT16K33_DIM_1) {
-            level = HT16K33_DIM_1;
+        if (level > HT16K33_DIM_MAX) {
+            level = HT16K33_DIM_MAX;
+        } else if (level < HT16K33_DIM_MIN) {
+            level = HT16K33_DIM_MIN;
         }
+        brightness = level;
         send(HT16K33_DIM | level);
+    }
+
+    void adjustBrightness() {
+        uint8_t newBrightness = 16 - (Luminance::read() >> 6);
+        if (newBrightness != brightness) {
+            setBrightness(newBrightness);
+        }
     }
 
     void standby() {
@@ -96,6 +90,7 @@ namespace Display {
 
     void operate() {
         send(HT16K33_SS | HT16K33_SS_NORMAL);
+        setBrightness(brightness);
     }
 
     void blink(Blink rate) {
@@ -294,7 +289,7 @@ namespace Display {
         i2c_init();
         send(HT16K33_SS | HT16K33_SS_NORMAL);
         send(HT16K33_RIS | HT16K33_RIS_OUT);
-        setBrightness(0);
+        setBrightness(HT16K33_DIM_MAX);
         displayOn();
     }
 
