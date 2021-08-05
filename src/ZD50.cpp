@@ -63,10 +63,6 @@ namespace ZD50 {
     }
 
     void setVolume(int newVolume) {
-        if (volume == newVolume) {
-            return;
-        }
-
         if (newVolume > VOLUME_MAX_VALUE) {
             newVolume = VOLUME_MAX_VALUE;
         }
