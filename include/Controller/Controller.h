@@ -19,7 +19,8 @@ public:
         VOLUME_DECREMENT = 3,
         BUTTON_PRESS = 4,
         BUTTON_PRESSING = 5,
-        ROTATE = 6
+        ROTATE = 6,
+        MUTE = 7
     } Command;
 
     typedef int CommandParam;

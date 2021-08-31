@@ -81,10 +81,13 @@ namespace Attenuator {
 
     void setLevel(const uint8_t newLevel, const bool isMuted) {
         _level = newLevel & ATTENUATOR_LEVEL_MASK;
+//        String stringOne = String(ATTENUATION_LEVEL_TO_DB(_level), 2);
 #if ZD50_DEBUG_SERIAL
-        ZD50::SerialOut.print(F("========================"));
-        ZD50::SerialOut.print(F("SET_ATTENUATION_LEVEL: "));
-        ZD50::SerialOut.println(_level);
+        ZD50::SerialOut.print(F("[ATTENUATOR] Set level: "));
+        ZD50::SerialOut.print(_level);
+//        ZD50::SerialOut.print(F(", -"));
+//        ZD50::SerialOut.print(stringOne.c_str());
+//        ZD50::SerialOut.print(F(" dB"));
         ZD50::SerialOut.println();
 #endif
         _isMuted = isMuted;
@@ -115,8 +118,12 @@ namespace Attenuator {
         uint16_t relayRegister = 0;
         char bitCounter;
 #if ZD50_DEBUG_SERIAL
-        ZD50::SerialOut.print(F(" lv "));
-        ZD50::SerialOut.println(setLevelBits);
+        ZD50::SerialOut.print(__FUNCTION__);
+        ZD50::SerialOut.print(F(" Level: "));
+        ZD50::SerialOut.print(setLevelBits, 10);
+        ZD50::SerialOut.print(F(" [bits H -> L] "));
+        ZD50::SerialOut.print(setLevelBits, 2);
+        ZD50::SerialOut.println();
 #endif
 
         // set two bits for each attenuation value bit from 6 to 1
@@ -154,7 +161,8 @@ namespace Attenuator {
 
     void _serialOutBinary(uint16_t relayRegister) {
 #if ZD50_DEBUG_SERIAL
-        ZD50::SerialOut.print(F(" register "));
+        ZD50::SerialOut.print(__FUNCTION__);
+        ZD50::SerialOut.print(F(" [bits H -> L] "));
         for (int i = 15; i >= 0; i--) {
             ZD50::SerialOut.print((relayRegister & (1 << i)) ? 1 : 0);
             if (i == 8) {

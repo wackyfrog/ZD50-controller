@@ -8,6 +8,7 @@
 #include "stdint.h"
 
 namespace Button {
+#define VIRTUAL_PRESS_TIMEOUT ( 250 )
 
     typedef enum {
         UNPRESSED = 0,
@@ -35,6 +36,10 @@ namespace Button {
     unsigned long getPressingTime();
 
     State getState();
+
+    void virtualPress();
+
+    void virtualUnpress();
 }
 
 

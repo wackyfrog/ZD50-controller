@@ -18,6 +18,9 @@ namespace ZD50 {
     void init() {
 #if ZD50_DEBUG_SERIAL
         SerialOut.begin(0);
+        SerialOut.println();
+        SerialOut.println();
+        SerialOut.println();
         SerialOut.println(F("[ZD50:init]"));
 #endif
         POWER_INIT();
@@ -63,10 +66,6 @@ namespace ZD50 {
     }
 
     void setVolume(int newVolume) {
-        if (volume == newVolume) {
-            return;
-        }
-
         if (newVolume > VOLUME_MAX_VALUE) {
             newVolume = VOLUME_MAX_VALUE;
         }

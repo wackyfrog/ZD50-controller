@@ -62,6 +62,18 @@ void PowerOnState::command(Command command, CommandParam param) {
             ZD50::setVolume((int) param + ZD50::getVolume());
             break;
 
+        case Command::VOLUME_INCREMENT:
+            ZD50::setVolume(ZD50::getVolume() + 1);
+            break;
+
+        case Command::VOLUME_DECREMENT:
+            ZD50::setVolume(ZD50::getVolume() - 1);
+            break;
+
+        case Command::MUTE:
+            ZD50::setVolume(0);
+            break;
+
         default:
             break;
 
