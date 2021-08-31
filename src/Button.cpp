@@ -9,9 +9,12 @@
 namespace Button {
 
     volatile static bool isPressed = false;
+    volatile static bool isVirtuallyPressed = false;
 
     State state = UNPRESSED;
 
+    static unsigned long virtualPressStartTime = 0;
+    static unsigned long virtuallyPressedLastUpdated = 0;
     static unsigned long pressStartTime = 0;
     static unsigned long nextStateTime = 0;
 
@@ -29,7 +32,11 @@ namespace Button {
 
             now = millis();
 
-            if (isPressed) {
+            if (isVirtuallyPressed && (now - virtuallyPressedLastUpdated > VIRTUAL_PRESS_TIMEOUT)) {
+                isVirtuallyPressed = false;
+            }
+
+            if (isPressed || isVirtuallyPressed) {
                 if (now > nextStateTime) {
                     if (pressStartTime == 0) {
                         pressStartTime = now;
@@ -65,6 +72,18 @@ namespace Button {
      */
     State getState() {
         return state;
+    }
+
+    void virtualPress() {
+        virtuallyPressedLastUpdated = millis();
+        if (isVirtuallyPressed) {
+            virtualPressStartTime = virtuallyPressedLastUpdated;
+        }
+        isVirtuallyPressed = true;
+    }
+
+    void virtualUnpress() {
+        isVirtuallyPressed = false;
     }
 
 }

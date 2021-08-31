@@ -6,29 +6,12 @@
 #include "Display/Font.h"
 #include "Menu/Menu.h"
 
+#define IR_REPEAT_ADDR ( 0xffff )
+#define IR_REPEAT_CMD ( 0x00 )
 namespace IR {
 
 #define pinIR IR_PIN_RCV
     CNec IRLremote;
-
-    RC_Button ButtonsDefault[RC_BUTTONS_COUNT] = {
-            {
-                    RC_POWER_BUTTON,
-                    0x1183, 0x00
-            },
-            {
-                    RC_VOLUME_UP_BUTTON,
-                    0x1183, 0x16
-            },
-            {
-                    RC_VOLUME_DOWN_BUTTON,
-                    0x1183, 0x17
-            },
-            {
-                    RC_MUTE_BUTTON,
-                    0x1183, 0x18
-            },
-    };
 
     void init() {
 #if ZD50_DEBUG_SERIAL
@@ -43,21 +26,28 @@ namespace IR {
         }
     }
 
-    void handleRcButton(RC_Button *rc_button) {
+    void handleRcButton(RC_Button *rc_button, unsigned long pressingTime) {
         switch (rc_button->button) {
             case RC_POWER_BUTTON:
+                Button::virtualPress();
                 break;
 
             case RC_VOLUME_UP_BUTTON:
-                ZD50::command(Controller::Command::VOLUME_INCREMENT);
+                if (pressingTime == 0 || pressingTime > RC_REPEAT_DELAY) {
+                    ZD50::command(Controller::Command::VOLUME_INCREMENT);
+                }
                 break;
 
             case RC_VOLUME_DOWN_BUTTON:
-                ZD50::command(Controller::Command::VOLUME_DECREMENT);
+                if (pressingTime == 0 || pressingTime > RC_REPEAT_DELAY) {
+                    ZD50::command(Controller::Command::VOLUME_DECREMENT);
+                }
                 break;
 
             case RC_MUTE_BUTTON:
-                ZD50::command(Controller::Command::MUTE);
+                if (pressingTime == 0) {
+                    ZD50::command(Controller::Command::MUTE);
+                }
                 break;
 
             default:
@@ -65,27 +55,41 @@ namespace IR {
         }
     }
 
-    void handleIrEvent(IR_ButtonData ir_button) {
-        RC_Button *rc_button;
-        rc_button = ButtonsDefault;
+    void handleIrEvent(IR_ButtonData irButton) {
+        unsigned long now = millis();
+        static unsigned long pressTime = 0;
+        static IR_ButtonData lastPressedIrButton;
 
-        ZD50::SerialOut.println(F("Lookup data:"));
+        if (irButton.address == IR_REPEAT_ADDR && irButton.command == IR_REPEAT_CMD) {
+            irButton = lastPressedIrButton;
+        } else {
+            lastPressedIrButton = irButton;
+            pressTime = now;
+        }
 
-        for (uint8_t i = 0; i < RC_BUTTONS_COUNT; i++, rc_button++) {
-            ZD50::SerialOut.print(F("address: 0x"));
-            ZD50::SerialOut.print(rc_button->ir.address, HEX);
-            ZD50::SerialOut.print(F(", "));
-            ZD50::SerialOut.print(F("command: 0x"));
-            ZD50::SerialOut.print(rc_button->ir.command, HEX);
-            ZD50::SerialOut.println();
 
-            if (rc_button->ir.address == ir_button.address && rc_button->ir.command == ir_button.command) {
 #if ZD50_DEBUG_SERIAL
-                ZD50::SerialOut.print("RC button match: ");
-                ZD50::SerialOut.print(rc_button->button);
+        ZD50::SerialOut.print(F("[IR] "));
+        ZD50::SerialOut.print(F("addr: 0x"));
+        ZD50::SerialOut.print(irButton.address, HEX);
+        ZD50::SerialOut.print(F(", "));
+        ZD50::SerialOut.print(F("cmd: 0x"));
+        ZD50::SerialOut.print(irButton.command, HEX);
+        ZD50::SerialOut.print(F(", ms: "));
+        ZD50::SerialOut.print((int32_t)(now - pressTime));
+        ZD50::SerialOut.println();
+#endif
+
+        RC_Button *rcButton = (RC_Button *)ButtonsDefault;
+        for (uint8_t i = 0; i < RC_BUTTONS_COUNT; i++, rcButton++) {
+            if (rcButton->ir.address == irButton.address && rcButton->ir.command == irButton.command) {
+#if ZD50_DEBUG_SERIAL
+                ZD50::SerialOut.print("[RC] button ID: ");
+
+                ZD50::SerialOut.print(rcButton->button);
                 ZD50::SerialOut.println();
 #endif
-                handleRcButton(rc_button);
+                handleRcButton(rcButton, now - pressTime);
                 break;
             }
         }
@@ -96,20 +100,8 @@ namespace IR {
     COROUTINE(irRcv) {
         COROUTINE_LOOP() {
             COROUTINE_AWAIT(IRLremote.available());
-            // Get the new data from the remote
-            auto data = IRLremote.read();
-
-#if ZD50_DEBUG_SERIAL
-            ZD50::SerialOut.print(F("IR data:"));
-            ZD50::SerialOut.print(F("address: 0x"));
-            ZD50::SerialOut.print(data.address, HEX);
-            ZD50::SerialOut.print(F(", "));
-            ZD50::SerialOut.print(F("command: 0x"));
-            ZD50::SerialOut.print(data.command, HEX);
-            ZD50::SerialOut.println();
-#endif
-            handleIrEvent(data);
-            COROUTINE_DELAY(100);
+            handleIrEvent(IRLremote.read());
+            COROUTINE_DELAY(10);
         }
     }
 
