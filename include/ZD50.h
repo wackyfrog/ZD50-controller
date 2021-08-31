@@ -34,7 +34,7 @@
 namespace ZD50 {
     void init();
 
-    void command(Controller::Command command, Controller::CommandParam param);
+    void command(Controller::Command command, Controller::CommandParam param = 0);
 
     void setVolume(int newVolume);
 
