@@ -11,14 +11,18 @@
 #include "Config.h"
 
 // level 0 - 63
+#define ATTENUATOR_STEPS ( 6 )
+#define ATTENUATOR_STEP_DB ( 1.5 )
+
 #define ATTENUATOR_LEVEL_MASK ( 0b00111111 )
-#define ATT_RELAY_PULSE_MS 5
+#define ATT_RELAY_PULSE_MS ( 5 )
 
 #define MAX_ATTENUATION_LEVEL ATTENUATOR_LEVEL_MASK
-#define MIN_ATTENUATION_LEVEL 0
+#define MIN_ATTENUATION_LEVEL ( 0 )
 
 #define VOLUME_TO_ATTENUATION_LEVEL(volume) (volume > 0 ? MAX_ATTENUATION_LEVEL - volume + 1: MAX_ATTENUATION_LEVEL)
 #define VOLUME_TO_MUTE_STATE(volume) (volume == 0)
+#define ATTENUATION_LEVEL_TO_DB(level) (ATTENUATOR_STEP_DB * level)
 
 namespace Attenuator {
 
